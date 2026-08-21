@@ -2002,7 +2002,84 @@ body.lang-yue .section-title::after{background:var(--tea-accent)} */
         display: none
       }
     }
-  </style>
+  
+    /* ===== Bottom Tab Bar ===== */
+    .bottom-tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-top: 1px solid var(--glass-border);
+      z-index: 990;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    }
+    
+    .bottom-tab-bar .lang-selector {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px 15px;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .bottom-tab-bar .lang-selector::-webkit-scrollbar {
+      display: none; /* Hide scrollbar for cleaner UI */
+    }
+    
+    .bottom-tab-bar .lang-btn {
+      flex: 0 0 auto;
+      font-size: 0.8rem;
+      padding: 6px 14px;
+    }
+
+    .bottom-tab-bar .section-tabs {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 5px;
+      gap: 5px;
+    }
+
+    .bottom-tab-bar .tab-btn {
+      flex: 1;
+      font-size: 0.75rem;
+      padding: 8px 4px;
+      text-align: center;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      white-space: nowrap;
+    }
+
+    .bottom-tab-bar .tab-btn.active {
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    main {
+      padding-bottom: 140px; /* Make space for bottom bar */
+    }
+    
+    /* Adjust header layout */
+    header {
+      justify-content: space-between;
+      padding: 15px 24px;
+    }
+    
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      .bottom-tab-bar .tab-btn {
+        font-size: 0.65rem;
+      }
+    }
+</style>
 </head>
 
 <body>
@@ -2024,27 +2101,6 @@ body.lang-yue .section-title::after{background:var(--tea-accent)} */
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
           <path d="M7 10l5 5 5-5" />
         </svg>
-      </div>
-    </section>
-
-    <section class="features">
-      <h2 class="features-title reveal">为什么选择 LingoFlow</h2>
-      <div class="features-grid">
-        <div class="feature-card reveal" style="transition-delay:.05s">
-          <div class="feature-icon">🔤</div>
-          <h3>发音基石</h3>
-          <p>从字母到音标，点击即听，建立发音直觉</p>
-        </div>
-        <div class="feature-card reveal" style="transition-delay:.15s">
-          <div class="feature-icon">📚</div>
-          <h3>500+ 核心词汇</h3>
-          <p>十大分类场景，系统记忆，配合翻译与发音</p>
-        </div>
-        <div class="feature-card reveal" style="transition-delay:.25s">
-          <div class="feature-icon">📝</div>
-          <h3>场景句式</h3>
-          <p>八大生活场景对话，语法表格，即学即用</p>
-        </div>
       </div>
     </section>
 
@@ -2085,6 +2141,27 @@ body.lang-yue .section-title::after{background:var(--tea-accent)} */
       </div>
     </section>
 
+    <section class="features">
+      <h2 class="features-title reveal">为什么选择 LingoFlow</h2>
+      <div class="features-grid">
+        <div class="feature-card reveal" style="transition-delay:.05s">
+          <div class="feature-icon">🔤</div>
+          <h3>发音基石</h3>
+          <p>从字母到音标，点击即听，建立发音直觉</p>
+        </div>
+        <div class="feature-card reveal" style="transition-delay:.15s">
+          <div class="feature-icon">📚</div>
+          <h3>500+ 核心词汇</h3>
+          <p>十大分类场景，系统记忆，配合翻译与发音</p>
+        </div>
+        <div class="feature-card reveal" style="transition-delay:.25s">
+          <div class="feature-icon">📝</div>
+          <h3>场景句式</h3>
+          <p>八大生活场景对话，语法表格，即学即用</p>
+        </div>
+      </div>
+    </section>
+
     <footer class="landing-footer">LingoFlow 语流 · 极简语言学习 · Built with ♡</footer>
   </div>
 
@@ -2098,20 +2175,6 @@ body.lang-yue .section-title::after{background:var(--tea-accent)} */
     <header>
       <button class="back-btn" onclick="backToLanding()">← 主页</button>
       <div class="logo">LingoFlow<span>语流</span></div>
-      <div class="lang-selector">
-        <button class="lang-btn active" data-lang="en">🌿 English</button>
-        <button class="lang-btn" data-lang="es">🍑 Español</button>
-        <button class="lang-btn" data-lang="kr">💜 한국어</button>
-        <button class="lang-btn" data-lang="ja">🌸 日本語</button>
-        <button class="lang-btn" data-lang="yue">🍵 粵語</button>
-      </div>
-      <div class="section-tabs">
-        <button class="tab-btn active" data-section="sounds">发音基石</button>
-        <button class="tab-btn" data-section="vocab">核心词汇</button>
-        <button class="tab-btn" data-section="practice">单词练习</button>
-        <button class="tab-btn" data-section="grammar">句式语法</button>
-        <button class="tab-btn" data-section="lookup">智能查询</button>
-      </div>
     </header>
     <main>
       <div class="section active" id="sec-sounds"></div>
@@ -2143,7 +2206,24 @@ body.lang-yue .section-title::after{background:var(--tea-accent)} */
         </div>
       </div>
     </main>
-    <footer>LingoFlow 语流 · 极简语言学习 · Built with ♡</footer>
+    
+    <nav class="bottom-tab-bar">
+      <div class="lang-selector">
+        <button class="lang-btn active" data-lang="en">🌿 English</button>
+        <button class="lang-btn" data-lang="es">🍑 Español</button>
+        <button class="lang-btn" data-lang="kr">💜 한국어</button>
+        <button class="lang-btn" data-lang="ja">🌸 日本語</button>
+        <button class="lang-btn" data-lang="yue">🍵 粵語</button>
+      </div>
+      <div class="section-tabs">
+        <button class="tab-btn active" data-section="sounds">发音基石</button>
+        <button class="tab-btn" data-section="vocab">核心词汇</button>
+        <button class="tab-btn" data-section="practice">单词练习</button>
+        <button class="tab-btn" data-section="grammar">句式语法</button>
+        <button class="tab-btn" data-section="lookup">智能查询</button>
+      </div>
+    </nav>
+<footer>LingoFlow 语流 · 极简语言学习 · Built with ♡</footer>
   </div><!-- end learning-page -->
 
   <script>

@@ -155,7 +155,6 @@
       font-family: 'Outfit', 'Noto Sans SC', 'Noto Sans KR', sans-serif;
       color: var(--text-primary);
       min-height: 100vh;
-      overflow-x: hidden;
       transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       background: #F8F5F1;
     }
@@ -1146,10 +1145,11 @@
       }
 
       .vocab-sidebar {
-        width: calc(100% + 40px);
-        margin-left: -20px;
-        margin-right: -20px;
-        padding: 10px 20px;
+        width: calc(100% + 28px);
+        margin-left: -14px;
+        margin-right: -14px;
+        padding: 10px 14px;
+        position: -webkit-sticky;
         position: sticky;
         top: 0;
         z-index: 99;
@@ -1545,8 +1545,7 @@
       }
 
       .hero {
-        min-height: 90vh;
-        padding: 30px 20px
+        padding: 10px 20px 0;
       }
     }
 

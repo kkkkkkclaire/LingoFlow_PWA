@@ -1,0 +1,4205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LingoFlow 语流 — 语言学习</title>
+
+  <!-- ===== PWA Meta Tags ===== -->
+  <meta name="application-name" content="LingoFlow">
+  <meta name="description" content="多语言学习应用 — 英语、西班牙语、韩语、日语、粤语。联网自动更新，离线完整可用。">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="LingoFlow">
+  <meta name="theme-color" content="#8FB5A1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#6a9b89" media="(prefers-color-scheme: dark)">
+  <meta name="msapplication-TileColor" content="#8FB5A1">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="LingoFlow 语流">
+  <meta property="og:description" content="多语言学习应用，支持英语、西班牙语、韩语、日语、粤语">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/icons/icon-512.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ===== PWA Update Banner ===== */
+    #pwa-update-banner {
+      display: none;
+      position: fixed;
+      bottom: env(safe-area-inset-bottom, 20px);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 9999;
+      background: rgba(143, 181, 161, 0.92);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      gap: 12px;
+      align-items: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.3) inset;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      min-width: 240px;
+      justify-content: center;
+    }
+    #pwa-update-banner.show {
+      display: flex !important;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #pwa-update-banner .update-icon {
+      font-size: 18px;
+    }
+    #pwa-update-banner .update-text {
+      flex: 1;
+    }
+    #pwa-update-banner button {
+      background: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.5);
+      color: #fff;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: 'Outfit', sans-serif;
+    }
+    #pwa-update-banner button:hover {
+      background: rgba(255,255,255,0.5);
+    }
+    #pwa-update-banner .dismiss-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      font-size: 16px;
+      padding: 4px 6px;
+      cursor: pointer;
+    }
+    /* iOS safe-area padding for standalone mode */
+    @media all and (display-mode: standalone) {
+      body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      #pwa-update-banner {
+        bottom: calc(env(safe-area-inset-bottom) + 20px);
+      }
+    }
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ========== 1. 全局样式及 CSS 变量定义 ========== */
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.7);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+      --blur: 20px;
+      --radius: 16px;
+      --text-primary: #3A3632;
+      --text-secondary: #9E9893;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      --morandi-sage: #8FB5A1;
+      --morandi-rose: #C4918E;
+      --morandi-violet: #A392C4;
+      --mint-1: #C8D9CF;
+      --mint-2: #E5EDE8;
+      --mint-3: #F2F7F4;
+      --mint-accent: #8FB5A1;
+      --peach-1: #E0CFC8;
+      --peach-2: #EDE2DD;
+      --peach-3: #F5F0ED;
+      --peach-accent: #C4918E;
+      --lavender-1: #D0C8E0;
+      --lavender-2: #E2DDEE;
+      --lavender-3: #F0EDF5;
+      --lavender-accent: #A392C4;
+      --morandi-amber: #B0A080;
+      --tea-1: #D4CCBA;
+      --tea-2: #E8E2D6;
+      --tea-3: #F4F0EA;
+      --tea-accent: #B0A080;
+      --sky-1: #CDE0E7;
+      --sky-2: #E6EEF1;
+      --sky-3: #F3F7F8;
+      --sky-accent: #8DA9C4;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans SC', 'Noto Sans KR', sans-serif;
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #F8F5F1;
+    }
+
+    body.lang-en {
+      background: linear-gradient(135deg, var(--mint-1) 0%, var(--mint-2) 40%, var(--mint-3) 100%);
+    }
+
+    body.lang-es {
+      background: linear-gradient(135deg, var(--peach-1) 0%, var(--peach-2) 40%, var(--peach-3) 100%);
+    }
+
+    body.lang-kr {
+      background: linear-gradient(135deg, var(--lavender-1) 0%, var(--lavender-2) 40%, var(--lavender-3) 100%);
+    }
+
+    body.lang-ja {
+      background: linear-gradient(135deg, var(--sky-1) 0%, var(--sky-2) 40%, var(--sky-3) 100%);
+    }
+
+    body.lang-yue {
+      background: linear-gradient(135deg, var(--tea-1) 0%, var(--tea-2) 40%, var(--tea-3) 100%);
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 12s ease-in-out infinite alternate
+    }
+
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      top: -100px;
+      left: -100px
+    }
+
+    .orb-2 {
+      width: 350px;
+      height: 350px;
+      bottom: -80px;
+      right: -80px
+    }
+
+    .orb-3 {
+      width: 250px;
+      height: 250px;
+      top: 40%;
+      left: 60%
+    }
+
+    body.lang-en .orb-1 {
+      background: var(--mint-accent)
+    }
+
+    body.lang-en .orb-2 {
+      background: #B8D4C8
+    }
+
+    body.lang-en .orb-3 {
+      background: #A0C8B4
+    }
+
+    body.lang-es .orb-1 {
+      background: var(--peach-accent)
+    }
+
+    body.lang-es .orb-2 {
+      background: #D4AEA4
+    }
+
+    body.lang-es .orb-3 {
+      background: #C8A098
+    }
+
+    body.lang-kr .orb-1 {
+      background: var(--lavender-accent)
+    }
+
+    body.lang-kr .orb-2 {
+      background: #B8A8D0
+    }
+
+    body.lang-kr .orb-3 {
+      background: #A898C0
+    }
+
+    body.lang-ja .orb-1 {
+      background: var(--sky-accent)
+    }
+
+    body.lang-ja .orb-2 {
+      background: #B0C4DE
+    }
+
+    body.lang-ja .orb-3 {
+      background: #A0B8D0
+    }
+
+    body.lang-yue .orb-1 {
+      background: var(--tea-accent)
+    }
+
+    body.lang-yue .orb-2 {
+      background: #C8B898
+    }
+
+    body.lang-yue .orb-3 {
+      background: #B8A888
+    }
+
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) scale(1)
+      }
+
+      100% {
+        transform: translate(30px, -20px) scale(1.08)
+      }
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      box-shadow: var(--glass-shadow)
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.6)
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px
+    }
+
+    .logo span {
+      font-weight: 300;
+      opacity: 0.6;
+      margin-left: 6px;
+      font-size: 1rem
+    }
+
+    .lang-selector {
+      display: flex;
+      gap: 6px
+    }
+
+    .lang-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.4);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all var(--transition)
+    }
+
+    .lang-btn:hover {
+      background: rgba(255, 255, 255, 0.7);
+      transform: translateY(-1px)
+    }
+
+    .lang-btn.active {
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      font-weight: 600
+    }
+
+    body.lang-en .lang-btn.active {
+      color: #2a9d6a
+    }
+
+    body.lang-es .lang-btn.active {
+      color: #d4604a
+    }
+
+    body.lang-kr .lang-btn.active {
+      color: #7b5ec8
+    }
+
+    body.lang-ja .lang-btn.active {
+      color: #6C8EAD
+    }
+
+    body.lang-yue .lang-btn.active {
+      color: #8B7850
+    }
+
+    .section-tabs {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap
+    }
+
+    .tab-btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 400;
+      background: transparent;
+      color: var(--text-secondary);
+      transition: all var(--transition)
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: var(--text-primary)
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text-primary);
+      font-weight: 600
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 80px
+    }
+
+    .section {
+      display: none;
+      animation: fadeIn 0.4s ease
+    }
+
+    .section.active {
+      display: block
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px
+    }
+
+    /* SOUNDS */
+    .sound-category {
+      margin-bottom: 32px
+    }
+
+    .sound-category h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+      opacity: 0.7
+    }
+
+    .sound-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+      gap: 8px
+    }
+
+    .sound-block {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all var(--transition);
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      font-size: 1.1rem;
+      font-weight: 500
+    }
+
+    .sound-block .sub {
+      font-size: 0.6rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+      margin-top: 2px
+    }
+
+    .sound-block:hover {
+      background: rgba(255, 255, 255, 0.65);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08)
+    }
+
+    .sound-block:active {
+      transform: scale(0.95)
+    }
+
+    .sound-block.playing {
+      animation: pulse 0.3s ease
+    }
+
+    body.lang-en .sound-block.playing {
+      box-shadow: 0 0 0 3px var(--mint-accent)
+    }
+
+    body.lang-es .sound-block.playing {
+      box-shadow: 0 0 0 3px var(--peach-accent)
+    }
+
+    body.lang-kr .sound-block.playing {
+      box-shadow: 0 0 0 3px var(--lavender-accent)
+    }
+
+    body.lang-ja .sound-block.playing {
+      box-shadow: 0 0 0 3px var(--sky-accent)
+    }
+
+    body.lang-yue .sound-block.playing {
+      box-shadow: 0 0 0 3px var(--tea-accent)
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.05)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    /* VOCAB */
+    .vocab-layout {
+      display: flex;
+      gap: 20px;
+      position: relative
+    }
+
+    .vocab-sidebar {
+      width: 110px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 100px;
+      align-self: flex-start;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .vocab-sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .vocab-sidebar a {
+      display: block;
+      padding: 5px 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all var(--transition);
+      cursor: pointer;
+      white-space: nowrap;
+      border-radius: 6px;
+      margin-bottom: 1px;
+      outline: none;
+    }
+
+    .vocab-sidebar a:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(1px);
+    }
+
+    .vocab-sidebar a.active {
+      color: var(--text-primary);
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+      transform: translateX(2px);
+    }
+
+    .vocab-content {
+      flex: 1;
+      min-width: 0
+    }
+
+    .vocab-section {
+      margin-bottom: 20px;
+      scroll-margin-top: 110px
+    }
+
+    .vocab-section h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3)
+    }
+
+    .vocab-subgroup {
+      margin-bottom: 10px
+    }
+
+    .vocab-subgroup h4 {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      padding-left: 2px
+    }
+
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px
+    }
+
+    .vocab-card {
+      padding: 8px 4px;
+      border-radius: 10px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all var(--transition);
+      text-align: center
+    }
+
+    .vocab-card:hover {
+      background: rgba(255, 255, 255, 0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06)
+    }
+
+    .vocab-card:active {
+      transform: scale(0.97)
+    }
+
+    .vocab-word {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1px
+    }
+
+    .vocab-trans {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      font-weight: 300
+    }
+
+    /* Wider cards for non-number categories */
+    .vocab-grid.wide {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px
+    }
+
+    .vocab-grid.wide .vocab-card {
+      padding: 10px 8px
+    }
+
+    .vocab-grid.wide .vocab-word {
+      font-size: 0.9rem
+    }
+
+    .vocab-grid.wide .vocab-trans {
+      font-size: 0.7rem
+    }
+
+    /* GRAMMAR */
+    .grammar-block {
+      margin-bottom: 36px
+    }
+
+    .grammar-block h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 14px
+    }
+
+    .grammar-cat {
+      margin-bottom: 40px
+    }
+
+    .grammar-cat-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 6px
+    }
+
+    .grammar-cat-sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px
+    }
+
+    .grammar-table-wrap {
+      overflow-x: auto;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.5)
+    }
+
+    .grammar-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem
+    }
+
+    .grammar-table th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.2)
+    }
+
+    .grammar-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: background 0.2s
+    }
+
+    .grammar-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .grammar-table td:hover {
+      background: rgba(255, 255, 255, 0.3)
+    }
+
+    .grammar-table td.playing-cell {
+      background: rgba(255, 255, 255, 0.45)
+    }
+
+    .sentence-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      cursor: pointer
+    }
+
+    .sentence-row .text-col {
+      flex: 1
+    }
+
+    .sentence-row .main-text {
+      font-size: 1rem;
+      font-weight: 500
+    }
+
+    .sentence-row .sub-text {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      margin-top: 2px
+    }
+
+    .sentence-row.playing-row {
+      background: rgba(255, 255, 255, 0.6) !important;
+      transform: scale(0.98) !important
+    }
+
+    .speaker-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      flex-shrink: 0
+    }
+
+    .speaker-btn:hover {
+      background: rgba(255, 255, 255, 0.7)
+    }
+
+    .speaker-btn svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.5
+    }
+
+    /* PRACTICE */
+    .practice-container {
+      max-width: 460px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .practice-cats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .p-cat-btn {
+      padding: 12px 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all var(--transition);
+      color: var(--text-secondary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    }
+
+    .p-cat-btn:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      color: var(--text-primary);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      border-color: #fff;
+    }
+
+    .p-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .p-back-btn {
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+    }
+
+    .p-back-btn:hover {
+      background: rgba(255, 255, 255, 0.4);
+      color: var(--text-primary);
+    }
+
+    .p-progress {
+      flex: 1;
+      margin: 0 16px;
+      height: 5px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .p-progress input[type="range"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .p-progress-track {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .p-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--morandi-sage), var(--morandi-rose));
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .practice-card {
+      background: rgba(255, 255, 255, 0.65);
+      border-radius: 18px;
+      padding: 32px 20px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      margin-bottom: 16px;
+      transition: opacity 0.25s, transform 0.25s;
+    }
+
+    .practice-card.swipe-out {
+      opacity: 0;
+      transform: translateX(-80px);
+    }
+
+    .p-target-word {
+      font-size: 1.6rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+
+    .p-hint {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      min-height: 18px;
+    }
+
+    .p-input-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .p-input {
+      font-size: 1.2rem;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.8);
+      outline: none;
+      text-align: center;
+      width: 220px;
+      transition: all 0.2s;
+      font-weight: 400;
+      color: var(--text-primary);
+    }
+
+    .p-input:focus {
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      border-color: #fff;
+    }
+
+    .p-submit {
+      padding: 8px 20px;
+      border-radius: 16px;
+      border: none;
+      background: var(--text-primary);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .p-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.13);
+    }
+
+    .p-submit:active {
+      transform: translateY(0);
+    }
+
+    .p-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .p-nav-btn {
+      background: transparent;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .p-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--text-primary);
+    }
+
+    .p-feedback {
+      margin-top: 14px;
+      font-weight: 600;
+      font-size: 1rem;
+      min-height: 24px;
+    }
+
+    .p-gender {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: -4px;
+      margin-bottom: 10px;
+    }
+
+    /* LOOKUP */
+    .lookup-wrap {
+      max-width: 600px;
+      margin: 0 auto
+    }
+
+    .search-box {
+      display: flex;
+      gap: 0;
+      border-radius: 50px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06)
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 14px 24px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text-primary);
+      outline: none
+    }
+
+    .search-box input::placeholder {
+      color: #bbb
+    }
+
+    .search-box button {
+      padding: 14px 24px;
+      border: none;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.3);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: background var(--transition)
+    }
+
+    .search-box button:hover {
+      background: rgba(255, 255, 255, 0.6)
+    }
+
+    .lookup-result {
+      margin-top: 20px;
+      padding: 20px 24px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      display: none
+    }
+
+    .lookup-result.show {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: fadeIn 0.3s ease
+    }
+
+    .lookup-result .text-col {
+      flex: 1
+    }
+
+    .lookup-result .main-text {
+      font-size: 1.3rem;
+      font-weight: 600
+    }
+
+    .lookup-result .sub-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 4px
+    }
+
+    .lookup-loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      display: none
+    }
+
+    .lookup-loading.show {
+      display: block
+    }
+
+    .history-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 28px;
+      margin-bottom: 10px
+    }
+
+    .history-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .history-chip {
+      padding: 6px 14px;
+      border-radius: 30px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      font-size: 0.82rem;
+      transition: all var(--transition)
+    }
+
+    .history-chip:hover {
+      background: rgba(255, 255, 255, 0.6)
+    }
+
+    @media(max-width:768px) {
+      header {
+        padding: 12px 16px
+      }
+
+      .logo {
+        font-size: 1.2rem
+      }
+
+      main {
+        padding: 20px 14px 60px
+      }
+
+      .sound-grid {
+        grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+        gap: 6px
+      }
+
+      .vocab-layout {
+        flex-direction: column;
+        gap: 0
+      }
+
+      .vocab-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-bottom: 16px;
+        max-height: none;
+        overflow: visible
+      }
+
+      .vocab-sidebar a {
+        border-left: none;
+        border-bottom: 2px solid transparent;
+        padding: 5px 10px;
+        font-size: 0.72rem
+      }
+
+      .vocab-sidebar a.active {
+        border-left: none;
+        border-bottom-color: var(--text-primary)
+      }
+
+      .vocab-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px
+      }
+
+      .vocab-grid.wide {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 6px
+      }
+
+      .section-title {
+        font-size: 1.3rem
+      }
+
+      .grammar-table {
+        font-size: 0.8rem
+      }
+
+      .grammar-table th,
+      .grammar-table td {
+        padding: 8px 10px
+      }
+    }
+
+    @media(max-width:480px) {
+      .lang-selector {
+        gap: 4px
+      }
+
+      .lang-btn {
+        padding: 6px 14px;
+        font-size: 0.78rem
+      }
+
+      .tab-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem
+      }
+
+      .vocab-grid {
+        grid-template-columns: repeat(4, 1fr)
+      }
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      position: relative;
+      z-index: 1
+    }
+
+    /* === LANDING PAGE === */
+    #landing-page {
+      position: relative;
+      z-index: 1
+    }
+
+    #learning-page {
+      display: none;
+      position: relative;
+      z-index: 1
+    }
+
+    #learning-page.active {
+      display: block;
+      animation: pageSlideIn .65s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    @keyframes pageSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .landing-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: .2;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 14s ease-in-out infinite alternate
+    }
+
+    .lo-1 {
+      width: 500px;
+      height: 500px;
+      top: -150px;
+      right: -100px;
+      background: var(--morandi-sage)
+    }
+
+    .lo-2 {
+      width: 400px;
+      height: 400px;
+      bottom: -120px;
+      left: -80px;
+      background: var(--morandi-rose)
+    }
+
+    .lo-3 {
+      width: 300px;
+      height: 300px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--morandi-violet)
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      position: relative
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 22px;
+      border-radius: 40px;
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--morandi-rose);
+      background: rgba(196, 145, 142, .08);
+      border: 1px solid rgba(196, 145, 142, .15);
+      margin-bottom: 36px;
+      animation: fadeUp .8s .2s both
+    }
+
+    .hero-title {
+      font-size: clamp(3.5rem, 8vw, 6.5rem);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      background: linear-gradient(135deg, var(--morandi-sage), var(--morandi-rose), var(--morandi-violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeUp .8s .4s both
+    }
+
+    .hero-title span {
+      font-weight: 300
+    }
+
+    .hero-cn {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 300;
+      color: var(--text-secondary);
+      letter-spacing: 10px;
+      margin-top: 10px;
+      animation: fadeUp .8s .55s both
+    }
+
+    .hero-tagline {
+      font-size: clamp(1.05rem, 2.2vw, 1.4rem);
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-top: 44px;
+      line-height: 1.8;
+      animation: fadeUp .8s .7s both
+    }
+
+    .hero-desc {
+      font-size: .92rem;
+      color: var(--text-secondary);
+      margin-top: 14px;
+      letter-spacing: 4px;
+      animation: fadeUp .8s .85s both
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: .75rem;
+      letter-spacing: 2px;
+      animation: fadeUp .8s 1.2s both
+    }
+
+    .scroll-hint svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--text-secondary);
+      animation: sBounce 2s ease-in-out infinite
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(28px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes sBounce {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(8px)
+      }
+    }
+
+    .features {
+      padding: 100px 24px 80px;
+      max-width: 1080px;
+      margin: 0 auto;
+      text-align: center
+    }
+
+    .features-title {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 600;
+      margin-bottom: 56px;
+      letter-spacing: -.5px
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px
+    }
+
+    .feature-card {
+      padding: 44px 28px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .55);
+      border: 1px solid rgba(255, 255, 255, .75);
+      box-shadow: 0 2px 24px rgba(0, 0, 0, .03);
+      transition: all .45s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .06);
+      background: rgba(255, 255, 255, .75)
+    }
+
+    .feature-icon {
+      font-size: 2.4rem;
+      margin-bottom: 18px
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px
+    }
+
+    .feature-card p {
+      font-size: .85rem;
+      color: var(--text-secondary);
+      line-height: 1.65
+    }
+
+    .lang-select {
+      padding: 80px 24px 100px;
+      max-width: 1080px;
+      margin: 0 auto;
+      text-align: center
+    }
+
+    .lang-select-title {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 600;
+      margin-bottom: 10px
+    }
+
+    .lang-select-desc {
+      font-size: .92rem;
+      color: var(--text-secondary);
+      margin-bottom: 56px
+    }
+
+    .lang-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px
+    }
+
+    .lang-card {
+      padding: 52px 28px 40px;
+      border-radius: 24px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .45s cubic-bezier(.16, 1, .3, 1);
+      border: 1px solid rgba(255, 255, 255, .5);
+      position: relative;
+      overflow: hidden
+    }
+
+    .lang-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .07)
+    }
+
+    .lang-card-emoji {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      display: block;
+      transition: transform .4s
+    }
+
+    .lang-card:hover .lang-card-emoji {
+      transform: scale(1.1)
+    }
+
+    .lang-card h3 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -.5px
+    }
+
+    .lang-card>p {
+      font-size: .88rem;
+      color: var(--text-secondary);
+      margin-bottom: 28px
+    }
+
+    .lang-card-cta {
+      font-size: .85rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: all .35s;
+      display: inline-block
+    }
+
+    .lang-card:hover .lang-card-cta {
+      opacity: .7;
+      transform: translateY(0)
+    }
+
+    .card-en {
+      background: linear-gradient(145deg, #E8F0EB, #D8E8DE)
+    }
+
+    .card-es {
+      background: linear-gradient(145deg, #F0E6E0, #E8D8D0)
+    }
+
+    .card-kr {
+      background: linear-gradient(145deg, #E8E2F0, #D8D0E8)
+    }
+
+    .card-ja {
+      background: linear-gradient(145deg, #D8EAF0, #C8DCE8);
+    }
+
+    .card-yue {
+      background: linear-gradient(145deg, #EDE8DC, #E0D8C8)
+    }
+
+    .landing-footer {
+      text-align: center;
+      padding: 48px;
+      font-size: .78rem;
+      color: var(--text-secondary);
+      letter-spacing: 1px
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all .7s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .back-btn {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 500;
+      background: rgba(255, 255, 255, .4);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, .5);
+      transition: all var(--transition)
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, .7);
+      transform: translateY(-1px)
+    }
+
+    @media(max-width:768px) {
+
+      .features-grid,
+      .lang-cards {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto
+      }
+
+      .hero {
+        min-height: 90vh;
+        padding: 30px 20px
+      }
+    }
+
+    /* ===== VISUAL ENHANCEMENTS ===== */
+
+    /* Grain texture overlay */
+    /* Grain texture overlay - REMOVED per user request if it looked like a black square */
+    /* body::before {
+  content:''; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:0.022;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+} */
+
+    /* Section title accent underline */
+    .section-title {
+      position: relative;
+      display: inline-block
+    }
+
+    /* .section-title::after{content:'';position:absolute;bottom:-8px;left:0;width:36px;height:3px;border-radius:2px;opacity:0.5}
+body.lang-en .section-title::after{background:var(--mint-accent)}
+body.lang-es .section-title::after{background:var(--peach-accent)}
+body.lang-kr .section-title::after{background:var(--lavender-accent)}
+body.lang-yue .section-title::after{background:var(--tea-accent)} */
+
+    /* Spring-feel hover on vocab cards */
+    .vocab-card {
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      position: relative;
+      overflow: hidden
+    }
+
+    .vocab-card:hover {
+      transform: translateY(-3px) scale(1.04) !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important
+    }
+
+    /* Spring hover on sound blocks */
+    .sound-block {
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      position: relative;
+      overflow: hidden
+    }
+
+    .sound-block:hover {
+      transform: translateY(-3px) scale(1.06) !important;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important
+    }
+
+    /* Enhanced playing animation with glow */
+    @keyframes playBounce {
+      0% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.05)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .sound-block.playing {
+      animation: playBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) !important
+    }
+
+    .vocab-card.playing {
+      animation: playBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) !important
+    }
+
+    body.lang-en .vocab-card.playing {
+      box-shadow: 0 0 0 3px var(--mint-accent), 0 4px 16px rgba(143, 181, 161, 0.3) !important
+    }
+
+    body.lang-es .vocab-card.playing {
+      box-shadow: 0 0 0 3px var(--peach-accent), 0 4px 16px rgba(196, 145, 142, 0.3) !important
+    }
+
+    body.lang-kr .vocab-card.playing {
+      box-shadow: 0 0 0 3px var(--lavender-accent), 0 4px 16px rgba(163, 146, 196, 0.3) !important
+    }
+
+    body.lang-ja .vocab-card.playing {
+      box-shadow: 0 0 0 3px var(--sky-accent), 0 4px 16px rgba(141, 169, 196, 0.3) !important
+    }
+
+    body.lang-yue .vocab-card.playing {
+      box-shadow: 0 0 0 3px var(--tea-accent), 0 4px 16px rgba(176, 160, 128, 0.3) !important
+    }
+
+    /* Ripple effect */
+    .ripple-fx {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: rippleGrow 0.55s ease-out forwards;
+      pointer-events: none;
+      opacity: 0.25
+    }
+
+    body.lang-en .ripple-fx {
+      background: var(--mint-accent)
+    }
+
+    body.lang-es .ripple-fx {
+      background: var(--peach-accent)
+    }
+
+    body.lang-kr .ripple-fx {
+      background: var(--lavender-accent)
+    }
+
+    body.lang-ja .ripple-fx {
+      background: var(--sky-accent)
+    }
+
+    body.lang-yue .ripple-fx {
+      background: var(--tea-accent)
+    }
+
+    @keyframes rippleGrow {
+      to {
+        transform: scale(4);
+        opacity: 0
+      }
+    }
+
+    /* Enhanced sentence rows */
+    .sentence-row {
+      transition: all 0.3s ease !important
+    }
+
+    .sentence-row:hover {
+      background: rgba(255, 255, 255, 0.5) !important;
+      transform: translateX(4px)
+    }
+
+    /* Grammar table row hover */
+    .grammar-table tbody tr {
+      transition: background 0.25s ease
+    }
+
+    .grammar-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.2)
+    }
+
+    /* Vocab sidebar active spring */
+    .vocab-sidebar a {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important
+    }
+
+    .vocab-sidebar a.active {
+      transform: translateX(3px)
+    }
+
+    /* Feature card top accent line */
+    .feature-card {
+      position: relative;
+      overflow: hidden
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--morandi-sage), var(--morandi-rose), var(--morandi-violet));
+      opacity: 0;
+      transition: opacity 0.4s ease
+    }
+
+    .feature-card:hover::before {
+      opacity: 1
+    }
+
+    /* Lang card shimmer overlay */
+    .lang-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      opacity: 0;
+      transition: opacity 0.5s;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+      pointer-events: none
+    }
+
+    .lang-card:hover::after {
+      opacity: 1
+    }
+
+    /* Hero gradient shimmer */
+    .hero-title {
+      background-size: 200% 200% !important;
+      animation: fadeUp .8s .4s both, gradientShimmer 6s ease-in-out infinite !important
+    }
+
+    @keyframes gradientShimmer {
+
+      0%,
+      100% {
+        background-position: 0% 50%
+      }
+
+      50% {
+        background-position: 100% 50%
+      }
+    }
+
+    /* Tab active indicator dot */
+    .tab-btn {
+      position: relative
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 2px;
+      border-radius: 1px
+    }
+
+    body.lang-en .tab-btn.active::after {
+      background: var(--mint-accent)
+    }
+
+    body.lang-es .tab-btn.active::after {
+      background: var(--peach-accent)
+    }
+
+    body.lang-kr .tab-btn.active::after {
+      background: var(--lavender-accent)
+    }
+
+    body.lang-ja .tab-btn.active::after {
+      background: var(--sky-accent)
+    }
+
+    body.lang-yue .tab-btn.active::after {
+      background: var(--tea-accent)
+    }
+
+    /* Search box focus glow */
+    .search-box {
+      transition: box-shadow 0.3s ease, transform 0.3s ease !important
+    }
+
+    .search-box:focus-within {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+      transform: translateY(-2px)
+    }
+
+    /* History chips spring */
+    .history-chip {
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important
+    }
+
+    .history-chip:hover {
+      transform: translateY(-2px) scale(1.04) !important
+    }
+
+    /* Orb smooth transitions */
+    .orb {
+      transition: background 0.8s ease
+    }
+
+    /* Particles canvas */
+    #particles-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.35
+    }
+
+    /* Header scroll shadow */
+    header.scrolled {
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06) !important
+    }
+
+    /* Speaker button hover */
+    .speaker-btn {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important
+    }
+
+    .speaker-btn:hover {
+      transform: scale(1.12) !important;
+      background: rgba(255, 255, 255, 0.8) !important
+    }
+
+    /* Lookup result entrance */
+    .lookup-result.show {
+      animation: resultSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important
+    }
+
+    @keyframes resultSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1)
+      }
+    }
+
+    /* Back button hover */
+    .back-btn {
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important
+    }
+
+    .back-btn:hover {
+      transform: translateX(-3px) !important
+    }
+
+    /* Grammar category title accent */
+    .grammar-cat-title {
+      position: relative;
+      display: inline-block
+    }
+
+    .grammar-cat-title::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 28px;
+      height: 2px;
+      border-radius: 1px;
+      opacity: 0.4
+    }
+
+    body.lang-en .grammar-cat-title::after {
+      background: var(--mint-accent)
+    }
+
+    body.lang-es .grammar-cat-title::after {
+      background: var(--peach-accent)
+    }
+
+    body.lang-kr .grammar-cat-title::after {
+      background: var(--lavender-accent)
+    }
+
+    body.lang-ja .grammar-cat-title::after {
+      background: var(--sky-accent)
+    }
+
+    body.lang-yue .grammar-cat-title::after {
+      background: var(--tea-accent)
+    }
+
+    /* Vocab section header subtle left border */
+    .vocab-section h3 {
+      border-left: 3px solid transparent;
+      padding-left: 10px;
+      border-bottom: none !important
+    }
+
+    body.lang-en .vocab-section h3 {
+      border-left-color: var(--mint-accent)
+    }
+
+    body.lang-es .vocab-section h3 {
+      border-left-color: var(--peach-accent)
+    }
+
+    body.lang-kr .vocab-section h3 {
+      border-left-color: var(--lavender-accent)
+    }
+
+    body.lang-ja .vocab-section h3 {
+      border-left-color: var(--sky-accent)
+    }
+
+    body.lang-yue .vocab-section h3 {
+      border-left-color: var(--tea-accent)
+    }
+
+    /* Landing page enhanced reveal */
+    .reveal {
+      transition: all .8s cubic-bezier(.16, 1, .3, 1) !important
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      .hero-title {
+        animation: fadeUp .8s .4s both !important
+      }
+
+      #particles-canvas {
+        display: none
+      }
+
+      body::before {
+        display: none
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========== 2. 引导页 (Landing Page) 结构 ========== -->
+  <div id="landing-page">
+    <div class="landing-orb lo-1"></div>
+    <div class="landing-orb lo-2"></div>
+    <div class="landing-orb lo-3"></div>
+
+    <section class="hero">
+      <div class="hero-badge">✦ 开启语言之旅</div>
+      <h1 class="hero-title">Lingo<span>Flow</span></h1>
+      <p class="hero-cn">语 流</p>
+      <p class="hero-tagline">用最直觉的方式<br>掌握一门新语言</p>
+      <p class="hero-desc">发音 · 词汇 · 句式 · 一站式沉浸学习</p>
+      <div class="scroll-hint">
+        <span>向下探索</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+          <path d="M7 10l5 5 5-5" />
+        </svg>
+      </div>
+    </section>
+
+    <section class="features">
+      <h2 class="features-title reveal">为什么选择 LingoFlow</h2>
+      <div class="features-grid">
+        <div class="feature-card reveal" style="transition-delay:.05s">
+          <div class="feature-icon">🔤</div>
+          <h3>发音基石</h3>
+          <p>从字母到音标，点击即听，建立发音直觉</p>
+        </div>
+        <div class="feature-card reveal" style="transition-delay:.15s">
+          <div class="feature-icon">📚</div>
+          <h3>500+ 核心词汇</h3>
+          <p>十大分类场景，系统记忆，配合翻译与发音</p>
+        </div>
+        <div class="feature-card reveal" style="transition-delay:.25s">
+          <div class="feature-icon">📝</div>
+          <h3>场景句式</h3>
+          <p>八大生活场景对话，语法表格，即学即用</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lang-select">
+      <h2 class="lang-select-title reveal">选择你的语言旅程</h2>
+      <p class="lang-select-desc reveal">每门语言都包含完整的发音、词汇和句式学习体系</p>
+      <div class="lang-cards">
+        <div class="lang-card card-en reveal" style="transition-delay:.05s" onclick="enterLearning('en')">
+          <span class="lang-card-emoji">🌿</span>
+          <h3>English</h3>
+          <p>英语</p>
+          <span class="lang-card-cta">开始学习 →</span>
+        </div>
+        <div class="lang-card card-es reveal" style="transition-delay:.15s" onclick="enterLearning('es')">
+          <span class="lang-card-emoji">🍑</span>
+          <h3>Español</h3>
+          <p>西班牙语</p>
+          <span class="lang-card-cta">开始学习 →</span>
+        </div>
+        <div class="lang-card card-kr reveal" style="transition-delay:.25s" onclick="enterLearning('kr')">
+          <span class="lang-card-emoji">💜</span>
+          <h3>한국어</h3>
+          <p>韩语</p>
+          <span class="lang-card-cta">开始学习 →</span>
+        </div>
+        <div class="lang-card card-ja reveal" style="transition-delay:.30s" onclick="enterLearning('ja')">
+          <span class="lang-card-emoji">🌸</span>
+          <h3>日本語</h3>
+          <p>日语</p>
+          <span class="lang-card-cta">开始学习 →</span>
+        </div>
+        <div class="lang-card card-yue reveal" style="transition-delay:.35s" onclick="enterLearning('yue')">
+          <span class="lang-card-emoji">🍵</span>
+          <h3>粵語</h3>
+          <p>粤语</p>
+          <span class="lang-card-cta">开始学习 →</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">LingoFlow 语流 · 极简语言学习 · Built with ♡</footer>
+  </div>
+
+  <!-- LEARNING PAGE -->
+  <!-- ========== 3. 主学习界面 (Learning Page) 结构 ========== -->
+  <div id="learning-page">
+    <!-- 背景光晕动画 -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <header>
+      <button class="back-btn" onclick="backToLanding()">← 主页</button>
+      <div class="logo">LingoFlow<span>语流</span></div>
+      <div class="lang-selector">
+        <button class="lang-btn active" data-lang="en">🌿 English</button>
+        <button class="lang-btn" data-lang="es">🍑 Español</button>
+        <button class="lang-btn" data-lang="kr">💜 한국어</button>
+        <button class="lang-btn" data-lang="ja">🌸 日本語</button>
+        <button class="lang-btn" data-lang="yue">🍵 粵語</button>
+      </div>
+      <div class="section-tabs">
+        <button class="tab-btn active" data-section="sounds">发音基石</button>
+        <button class="tab-btn" data-section="vocab">核心词汇</button>
+        <button class="tab-btn" data-section="practice">单词练习</button>
+        <button class="tab-btn" data-section="grammar">句式语法</button>
+        <button class="tab-btn" data-section="lookup">智能查询</button>
+      </div>
+    </header>
+    <main>
+      <div class="section active" id="sec-sounds"></div>
+      <div class="section" id="sec-vocab"></div>
+      <div class="section" id="sec-practice"></div>
+      <div class="section" id="sec-grammar"></div>
+      <div class="section" id="sec-lookup">
+        <h2 class="section-title">智能翻译查询</h2>
+        <div class="lookup-wrap">
+          <div class="search-box">
+            <input type="text" id="lookup-input" placeholder="输入单词或句子...">
+            <button onclick="doLookup()">查询</button>
+          </div>
+          <div class="lookup-loading" id="lookup-loading">正在翻译...</div>
+          <div class="lookup-result" id="lookup-result">
+            <div class="text-col">
+              <div class="main-text" id="lookup-main"></div>
+              <div class="sub-text" id="lookup-sub"></div>
+            </div>
+            <button class="speaker-btn" onclick="speakLookup()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.08" />
+              </svg>
+            </button>
+          </div>
+          <div class="history-label" id="history-label" style="display:none">最近查询</div>
+          <div class="history-chips" id="history-chips"></div>
+        </div>
+      </div>
+    </main>
+    <footer>LingoFlow 语流 · 极简语言学习 · Built with ♡</footer>
+  </div><!-- end learning-page -->
+
+  <script>
+    // ========== 4. 数据生成辅助函数 ==========
+    // 用于生成各国语言数字数据
+    // ===== NUMBER GENERATORS (Arabic digits for translation) =====
+    // 生成英语的 0-100 数字及其对应英文单词的数组
+    function enNumbers() {
+      const w = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+        'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+      const tens = [, '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+      const r = [];
+      for (let i = 0; i <= 100; i++) {
+        let word;
+        if (i < 20) word = w[i];
+        else if (i === 100) word = 'one hundred';
+        else if (i % 10 === 0) word = tens[Math.floor(i / 10)];
+        else word = tens[Math.floor(i / 10)] + '-' + w[i % 10];
+        r.push({ w: word, t: String(i) });
+      }
+      return r;
+    }
+    // 生成西班牙语的 0-100 数字及其对应西文单词的数组
+    function esNumbers() {
+      const n = ['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
+        'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte',
+        'veintiuno', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
+      const tens = [, , '', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+      const r = [];
+      for (let i = 0; i <= 100; i++) {
+        let word;
+        if (i < 30) word = n[i];
+        else if (i === 100) word = 'cien';
+        else if (i % 10 === 0) word = tens[Math.floor(i / 10)];
+        else word = tens[Math.floor(i / 10)] + ' y ' + n[i % 10];
+        r.push({ w: word, t: String(i) });
+      }
+      return r;
+    }
+    // 生成韩语的 0-100 纯韩数字和汉字词数字的数据
+    function krNumbers() {
+      const sk = ['영', '일', '이', '삼', '사', '오', '육', '칠', '팔', '구', '십',
+        '십일', '십이', '십삼', '십사', '십오', '십육', '십칠', '십팔', '십구'];
+      const t2 = ['', '', '이십', '삼십', '사십', '오십', '육십', '칠십', '팔십', '구십'];
+      const r = [];
+      for (let i = 0; i <= 100; i++) {
+        let word;
+        if (i < 20) word = sk[i];
+        else if (i === 100) word = '백';
+        else if (i % 10 === 0) word = t2[Math.floor(i / 10)];
+        else word = t2[Math.floor(i / 10)] + sk[i % 10];
+        r.push({ w: word, t: String(i) });
+      }
+      return r;
+    }
+    // 生成日语的 0-100 数字发音及文字数据
+    function jaNumbers() {
+      const u = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+        '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九'];
+      const t2 = ['', '', '二十', '三十', '四十', '五十', '六十', '七十', '八十', '九十'];
+      const r = [];
+      for (let i = 0; i <= 100; i++) {
+        let word;
+        if (i < 20) word = u[i];
+        else if (i === 100) word = '百';
+        else if (i % 10 === 0) word = t2[Math.floor(i / 10)];
+        else word = t2[Math.floor(i / 10)] + u[i % 10];
+        r.push({ w: word, t: String(i) });
+      }
+      return r;
+    }
+    // 生成粤语的 0-100 数字发音及文字数据
+    function yueNumbers() {
+      const u = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+        '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九'];
+      const t2 = ['', '', '廿', '三十', '四十', '五十', '六十', '七十', '八十', '九十'];
+      const r = [];
+      for (let i = 0; i <= 100; i++) {
+        let word;
+        if (i < 20) word = u[i];
+        else if (i === 100) word = '一百';
+        else if (i % 10 === 0) word = t2[Math.floor(i / 10)];
+        else word = t2[Math.floor(i / 10)] + u[i % 10];
+        r.push({ w: word, t: String(i) });
+      }
+      return r;
+    }
+
+    // ===== DATA =====
+    const DATA = {
+      en: {
+        sounds: {
+          title: '发音基石 · The Sounds', subtitle: '点击方块即可听到发音', categories: [
+            { name: '26 Letters 字母表', items: 'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z'.split(' ').map(l => ({ text: l, sub: l.toLowerCase(), speak: l })) },
+            {
+              name: 'Vowels 元音', items: [
+                { text: 'iː', sub: 'bee', speak: 'bee' }, { text: 'ɪ', sub: 'bit', speak: 'bit' }, { text: 'e', sub: 'bed', speak: 'bed' }, { text: 'æ', sub: 'cat', speak: 'cat' },
+                { text: 'ɑː', sub: 'car', speak: 'car' }, { text: 'ɒ', sub: 'hot', speak: 'hot' }, { text: 'ɔː', sub: 'call', speak: 'call' }, { text: 'ʊ', sub: 'put', speak: 'put' },
+                { text: 'uː', sub: 'blue', speak: 'blue' }, { text: 'ʌ', sub: 'cup', speak: 'cup' }, { text: 'ɜː', sub: 'bird', speak: 'bird' }, { text: 'ə', sub: 'about', speak: 'about' },
+                { text: 'eɪ', sub: 'day', speak: 'day' }, { text: 'aɪ', sub: 'my', speak: 'my' }, { text: 'ɔɪ', sub: 'boy', speak: 'boy' },
+                { text: 'aʊ', sub: 'how', speak: 'how' }, { text: 'əʊ', sub: 'go', speak: 'go' }, { text: 'ɪə', sub: 'ear', speak: 'ear' },
+                { text: 'eə', sub: 'air', speak: 'air' }, { text: 'ʊə', sub: 'pure', speak: 'pure' }]
+            },
+            {
+              name: 'Consonants 辅音', items: [
+                { text: 'p', sub: 'pen', speak: 'pen' }, { text: 'b', sub: 'bag', speak: 'bag' }, { text: 't', sub: 'ten', speak: 'ten' }, { text: 'd', sub: 'dog', speak: 'dog' },
+                { text: 'k', sub: 'key', speak: 'key' }, { text: 'g', sub: 'go', speak: 'go' }, { text: 'f', sub: 'fat', speak: 'fat' }, { text: 'v', sub: 'van', speak: 'van' },
+                { text: 'θ', sub: 'thin', speak: 'thin' }, { text: 'ð', sub: 'this', speak: 'this' }, { text: 's', sub: 'sun', speak: 'sun' }, { text: 'z', sub: 'zoo', speak: 'zoo' },
+                { text: 'ʃ', sub: 'she', speak: 'she' }, { text: 'ʒ', sub: 'vision', speak: 'vision' }, { text: 'h', sub: 'hat', speak: 'hat' }, { text: 'm', sub: 'man', speak: 'man' },
+                { text: 'n', sub: 'no', speak: 'no' }, { text: 'ŋ', sub: 'sing', speak: 'sing' }, { text: 'l', sub: 'leg', speak: 'leg' }, { text: 'r', sub: 'red', speak: 'red' },
+                { text: 'w', sub: 'wet', speak: 'wet' }, { text: 'j', sub: 'yes', speak: 'yes' }, { text: 'tʃ', sub: 'chip', speak: 'chip' }, { text: 'dʒ', sub: 'jam', speak: 'jam' }]
+            }
+          ]
+        },
+        vocab: {
+          title: '核心 500 词汇 · Power 500', categories: [
+            {
+              id: 'pronouns', name: '人称', subgroups: [{
+                label: null, items: [
+                  { w: 'I', t: '我' }, { w: 'you', t: '你' }, { w: 'he', t: '他' }, { w: 'she', t: '她' }, { w: 'it', t: '它' }, { w: 'we', t: '我们' }, { w: 'they', t: '他们' },
+                  { w: 'me', t: '我(宾)' }, { w: 'him', t: '他(宾)' }, { w: 'her', t: '她(宾)' }, { w: 'us', t: '我们(宾)' }, { w: 'them', t: '他们(宾)' },
+                  { w: 'my', t: '我的' }, { w: 'your', t: '你的' }, { w: 'his', t: '他的' }]
+              }]
+            },
+            { id: 'numbers', name: '数字', subgroups: [{ label: null, items: enNumbers() }] },
+            {
+              id: 'time', name: '时间', subgroups: [
+                { label: '星期', items: [{ w: 'Monday', t: '周一' }, { w: 'Tuesday', t: '周二' }, { w: 'Wednesday', t: '周三' }, { w: 'Thursday', t: '周四' }, { w: 'Friday', t: '周五' }, { w: 'Saturday', t: '周六' }, { w: 'Sunday', t: '周日' }] },
+                { label: '月份', items: [{ w: 'January', t: '1月' }, { w: 'February', t: '2月' }, { w: 'March', t: '3月' }, { w: 'April', t: '4月' }, { w: 'May', t: '5月' }, { w: 'June', t: '6月' }, { w: 'July', t: '7月' }, { w: 'August', t: '8月' }, { w: 'September', t: '9月' }, { w: 'October', t: '10月' }, { w: 'November', t: '11月' }, { w: 'December', t: '12月' }] },
+                { label: '季节', items: [{ w: 'spring', t: '春' }, { w: 'summer', t: '夏' }, { w: 'autumn', t: '秋' }, { w: 'winter', t: '冬' }] },
+                { label: '时间单位', items: [{ w: 'hour', t: '小时' }, { w: 'minute', t: '分钟' }, { w: 'second', t: '秒' }, { w: 'today', t: '今天' }, { w: 'tomorrow', t: '明天' }, { w: 'yesterday', t: '昨天' }, { w: 'morning', t: '早上' }, { w: 'afternoon', t: '下午' }, { w: 'evening', t: '晚上' }, { w: 'night', t: '夜晚' }, { w: 'now', t: '现在' }, { w: 'later', t: '稍后' }] }
+              ]
+            },
+            {
+              id: 'relations', name: '关系', subgroups: [{
+                label: null, items: [
+                  { w: 'father', t: '父亲' }, { w: 'mother', t: '母亲' }, { w: 'brother', t: '兄弟' }, { w: 'sister', t: '姐妹' }, { w: 'friend', t: '朋友' },
+                  { w: 'son', t: '儿子' }, { w: 'daughter', t: '女儿' }, { w: 'husband', t: '丈夫' }, { w: 'wife', t: '妻子' }, { w: 'child', t: '孩子' },
+                  { w: 'baby', t: '婴儿' }, { w: 'teacher', t: '老师' }, { w: 'student', t: '学生' }, { w: 'neighbor', t: '邻居' }, { w: 'colleague', t: '同事' }, { w: 'grandfather', t: '祖父' }, { w: 'grandmother', t: '祖母' }, { w: 'uncle', t: '叔叔' }, { w: 'aunt', t: '阿姨' }, { w: 'nephew', t: '侄子' }, { w: 'niece', t: '侄女' }, { w: 'cousin', t: '表兄弟/姐妹' }]
+              }]
+            },
+            { id: 'body', name: '身体与健康', subgroups: [{ label: null, items: [{ w: 'head', t: '头' }, { w: 'eye', t: '眼睛' }, { w: 'ear', t: '耳朵' }, { w: 'mouth', t: '嘴' }, { w: 'nose', t: '鼻子' }, { w: 'face', t: '脸' }, { w: 'hand', t: '手' }, { w: 'arm', t: '手臂' }, { w: 'leg', t: '腿' }, { w: 'foot', t: '脚' }, { w: 'body', t: '身体' }, { w: 'hair', t: '头发' }, { w: 'doctor', t: '医生' }, { w: 'medicine', t: '药' }, { w: 'pain', t: '痛' }] }] },
+            {
+              id: 'verbs', name: '高频动词', subgroups: [{
+                label: null, items: [
+                  { w: 'be', t: '是' }, { w: 'have', t: '有' }, { w: 'go', t: '去' }, { w: 'come', t: '来' }, { w: 'eat', t: '吃' },
+                  { w: 'drink', t: '喝' }, { w: 'sleep', t: '睡' }, { w: 'want', t: '想要' }, { w: 'like', t: '喜欢' }, { w: 'need', t: '需要' },
+                  { w: 'can', t: '能够' }, { w: 'know', t: '知道' }, { w: 'say', t: '说' }, { w: 'see', t: '看' }, { w: 'hear', t: '听' },
+                  { w: 'write', t: '写' }, { w: 'buy', t: '买' }, { w: 'work', t: '工作' }, { w: 'play', t: '玩' }, { w: 'give', t: '给' },
+                  { w: 'take', t: '拿' }, { w: 'make', t: '做' }, { w: 'think', t: '想' }, { w: 'run', t: '跑' }, { w: 'walk', t: '走' },
+                  { w: 'read', t: '读' }, { w: 'open', t: '开' }, { w: 'close', t: '关' }, { w: 'love', t: '爱' }, { w: 'help', t: '帮助' },
+                  { w: 'ask', t: '问' }, { w: 'answer', t: '答' }, { w: 'learn', t: '学' }, { w: 'teach', t: '教' }, { w: 'wait', t: '等' },
+                  { w: 'try', t: '试' }, { w: 'use', t: '用' }, { w: 'find', t: '找' }, { w: 'put', t: '放' }, { w: 'call', t: '打电话' }]
+              }]
+            },
+            {
+              id: 'emotions', name: '情感表达', subgroups: [{
+                label: null, items: [
+                  { w: 'happy', t: '开心' }, { w: 'sad', t: '伤心' }, { w: 'tired', t: '累' }, { w: 'good', t: '好' }, { w: 'bad', t: '坏' },
+                  { w: 'big', t: '大' }, { w: 'small', t: '小' }, { w: 'hot', t: '热' }, { w: 'cold', t: '冷' }, { w: 'new', t: '新' },
+                  { w: 'old', t: '旧' }, { w: 'beautiful', t: '美丽' }, { w: 'sorry', t: '抱歉' }, { w: 'thank you', t: '谢谢' },
+                  { w: 'please', t: '请' }, { w: 'yes', t: '是' }, { w: 'no', t: '不' }]
+              }]
+            },
+            {
+              id: 'home', name: '居家', subgroups: [{
+                label: null, items: [
+                  { w: 'house', t: '房子' }, { w: 'room', t: '房间' }, { w: 'kitchen', t: '厨房' }, { w: 'bedroom', t: '卧室' }, { w: 'bathroom', t: '浴室' },
+                  { w: 'table', t: '桌子' }, { w: 'chair', t: '椅子' }, { w: 'bed', t: '床' }, { w: 'door', t: '门' }, { w: 'window', t: '窗户' },
+                  { w: 'light', t: '灯' }, { w: 'phone', t: '电话' }, { w: 'computer', t: '电脑' }, { w: 'key', t: '钥匙' }, { w: 'clock', t: '钟' }]
+              }]
+            },
+            { id: 'clothes', name: '衣物与穿搭', subgroups: [{ label: null, items: [{ w: 'clothes', t: '衣服' }, { w: 'shirt', t: '衬衫' }, { w: 't-shirt', t: 'T恤' }, { w: 'pants', t: '裤子' }, { w: 'dress', t: '连衣裙' }, { w: 'skirt', t: '裙子' }, { w: 'jacket', t: '夹克' }, { w: 'coat', t: '外套' }, { w: 'shoe', t: '鞋' }, { w: 'hat', t: '帽子' }, { w: 'sock', t: '袜子' }, { w: 'bag', t: '包' }, { w: 'glasses', t: '眼镜' }, { w: 'belt', t: '皮带' }, { w: 'ring', t: '戒指' }] }] },
+            {
+              id: 'restaurant', name: '餐厅', subgroups: [{
+                label: null, items: [
+                  { w: 'water', t: '水' }, { w: 'rice', t: '米饭' }, { w: 'bread', t: '面包' }, { w: 'meat', t: '肉' }, { w: 'fish', t: '鱼' },
+                  { w: 'egg', t: '鸡蛋' }, { w: 'fruit', t: '水果' }, { w: 'coffee', t: '咖啡' }, { w: 'tea', t: '茶' }, { w: 'milk', t: '牛奶' },
+                  { w: 'sugar', t: '糖' }, { w: 'salt', t: '盐' }, { w: 'menu', t: '菜单' }, { w: 'bill', t: '账单' },
+                  { w: 'fork', t: '叉子' }, { w: 'knife', t: '刀' }, { w: 'spoon', t: '勺子' }, { w: 'plate', t: '盘子' },
+                  { w: 'apple', t: '苹果' }, { w: 'banana', t: '香蕉' }, { w: 'cake', t: '蛋糕' }, { w: 'chicken', t: '鸡肉' }, { w: 'noodle', t: '面条' },
+                  { w: 'soup', t: '汤' }, { w: 'juice', t: '果汁' }, { w: 'beer', t: '啤酒' }, { w: 'wine', t: '葡萄酒' }, { w: 'cheese', t: '奶酪' },
+                  { w: 'pizza', t: '披萨' }, { w: 'sandwich', t: '三明治' }, { w: 'chocolate', t: '巧克力' }, { w: 'ice cream', t: '冰淇淋' }]
+              }]
+            },
+            {
+              id: 'transport', name: '城市交通', subgroups: [{
+                label: null, items: [
+                  { w: 'airport', t: '机场' }, { w: 'station', t: '车站' }, { w: 'hotel', t: '酒店' }, { w: 'bus', t: '巴士' }, { w: 'taxi', t: '出租车' },
+                  { w: 'train', t: '火车' }, { w: 'left', t: '左' }, { w: 'right', t: '右' }, { w: 'street', t: '街道' }, { w: 'map', t: '地图' },
+                  { w: 'ticket', t: '票' }, { w: 'passport', t: '护照' }, { w: 'bank', t: '银行' }, { w: 'hospital', t: '医院' }, { w: 'school', t: '学校' }]
+              }]
+            },
+            { id: 'jobs', name: '职业与身份', subgroups: [{ label: null, items: [{ w: 'police', t: '警察' }, { w: 'worker', t: '工人' }, { w: 'driver', t: '司机' }, { w: 'boss', t: '老板' }, { w: 'staff', t: '员工' }, { w: 'farmer', t: '农夫' }, { w: 'cook', t: '厨师' }, { w: 'artist', t: '艺术家' }, { w: 'singer', t: '歌手' }, { w: 'actor', t: '演员' }, { w: 'writer', t: '作家' }, { w: 'nurse', t: '护士' }, { w: 'manager', t: '经理' }, { w: 'pilot', t: '飞行员' }, { w: 'engineer', t: '工程师' }, { w: 'photographer', t: '摄影师' }] }] },
+            {
+              id: 'hobbies', name: '爱好', subgroups: [{
+                label: null, items: [
+                  { w: 'music', t: '音乐' }, { w: 'movie', t: '电影' }, { w: 'programming', t: '编程' }, { w: 'reading', t: '阅读' }, { w: 'photography', t: '摄影' },
+                  { w: 'football', t: '足球' }, { w: 'basketball', t: '篮球' }, { w: 'tennis', t: '网球' }, { w: 'swimming', t: '游泳' }, { w: 'running', t: '跑步' },
+                  { w: 'hiking', t: '徒步' }, { w: 'yoga', t: '瑜伽' }, { w: 'dancing', t: '跳舞' }, { w: 'painting', t: '画画' }, { w: 'cooking', t: '烹饪' },
+                  { w: 'travel', t: '旅行' }, { w: 'gaming', t: '游戏' }, { w: 'singing', t: '唱歌' }]
+              }]
+            },
+            { id: 'nature', name: '大自然与动物', subgroups: [{ label: null, items: [{ w: 'dog', t: '狗' }, { w: 'cat', t: '猫' }, { w: 'bird', t: '鸟' }, { w: 'fish', t: '鱼' }, { w: 'horse', t: '马' }, { w: 'tree', t: '树' }, { w: 'flower', t: '花' }, { w: 'grass', t: '草' }, { w: 'mountain', t: '山' }, { w: 'river', t: '河' }, { w: 'sea', t: '海' }, { w: 'sky', t: '天空' }, { w: 'sun', t: '太阳' }, { w: 'moon', t: '月亮' }, { w: 'star', t: '星星' }] }] },
+            {
+              id: 'colors', name: '颜色', subgroups: [{
+                label: null, items: [
+                  { w: 'red', t: '红' }, { w: 'orange', t: '橙' }, { w: 'yellow', t: '黄' }, { w: 'green', t: '绿' }, { w: 'blue', t: '蓝' },
+                  { w: 'purple', t: '紫' }, { w: 'pink', t: '粉' }, { w: 'black', t: '黑' }, { w: 'white', t: '白' }, { w: 'gray', t: '灰' },
+                  { w: 'brown', t: '棕' }, { w: 'gold', t: '金' }]
+              }]
+            },
+            {
+              id: 'directions', name: '方位', subgroups: [{
+                label: null, items: [
+                  { w: 'this', t: '这个' }, { w: 'that', t: '那个' }, { w: 'here', t: '这里' }, { w: 'there', t: '那里' },
+                  { w: 'front', t: '前面' }, { w: 'back', t: '后面' }, { w: 'left', t: '左边' }, { w: 'right', t: '右边' },
+                  { w: 'up', t: '上面' }, { w: 'down', t: '下面' }, { w: 'inside', t: '里面' }, { w: 'outside', t: '外面' },
+                  { w: 'near', t: '近' }, { w: 'far', t: '远' }, { w: 'between', t: '之间' }, { w: 'next to', t: '旁边' },
+                  { w: 'above', t: '上方' }, { w: 'below', t: '下方' }, { w: 'opposite', t: '对面' }, { w: 'around', t: '周围' }]
+              }]
+            },
+            {
+              id: 'weather', name: '天气', subgroups: [{
+                label: null, items: [
+                  { w: 'sunny', t: '晴天' }, { w: 'cloudy', t: '阴天' }, { w: 'rainy', t: '下雨' }, { w: 'snowy', t: '下雪' }, { w: 'windy', t: '刮风' },
+                  { w: 'stormy', t: '暴风雨' }, { w: 'foggy', t: '有雾' }, { w: 'thunder', t: '雷' }, { w: 'lightning', t: '闪电' }, { w: 'rainbow', t: '彩虹' },
+                  { w: 'hot', t: '热' }, { w: 'cold', t: '冷' }, { w: 'warm', t: '暖和' }, { w: 'cool', t: '凉爽' }, { w: 'humid', t: '潮湿' },
+                  { w: 'dry', t: '干燥' }, { w: 'frost', t: '霜' }, { w: 'hail', t: '冰雹' }, { w: 'breeze', t: '微风' }, { w: 'temperature', t: '温度' },
+                  { w: 'umbrella', t: '雨伞' }, { w: 'forecast', t: '天气预报' }, { w: 'sunshine', t: '阳光' }, { w: 'cloud', t: '云' }]
+              }]
+            },
+            {
+              id: 'cosmetics', name: '个人洗护', subgroups: [{
+                label: null, items: [
+                  { w: 'shampoo', t: '洗发水' }, { w: 'conditioner', t: '护发素' }, { w: 'soap', t: '肥皂' }, { w: 'toothbrush', t: '牙刷' }, { w: 'toothpaste', t: '牙膏' },
+                  { w: 'towel', t: '毛巾' }, { w: 'comb', t: '梳子' }, { w: 'razor', t: '剃须刀' }, { w: 'lotion', t: '乳液' }, { w: 'sunscreen', t: '防晒霜' },
+                  { w: 'lipstick', t: '口红' }, { w: 'mascara', t: '睫毛膏' }, { w: 'perfume', t: '香水' }, { w: 'foundation', t: '粉底液' }, { w: 'nail polish', t: '指甲油' },
+                  { w: 'moisturizer', t: '保湿霜' }, { w: 'cleanser', t: '洗面奶' }, { w: 'deodorant', t: '除臭剂' }, { w: 'tissue', t: '纸巾' }, { w: 'cotton pad', t: '化妆棉' },
+                  { w: 'mirror', t: '镜子' }, { w: 'shower gel', t: '沐浴露' }, { w: 'body wash', t: '沐浴液' }, { w: 'hand cream', t: '护手霜' }]
+              }]
+            },
+            {
+              id: 'countries', name: '国家名', subgroups: [{
+                label: null, items: [
+                  { w: 'China', t: '中国' }, { w: 'United States', t: '美国' }, { w: 'United Kingdom', t: '英国' }, { w: 'Japan', t: '日本' }, { w: 'South Korea', t: '韩国' },
+                  { w: 'France', t: '法国' }, { w: 'Germany', t: '德国' }, { w: 'Italy', t: '意大利' }, { w: 'Spain', t: '西班牙' }, { w: 'Russia', t: '俄罗斯' },
+                  { w: 'Canada', t: '加拿大' }, { w: 'Australia', t: '澳大利亚' }, { w: 'Brazil', t: '巴西' }, { w: 'India', t: '印度' }, { w: 'Mexico', t: '墨西哥' },
+                  { w: 'Thailand', t: '泰国' }, { w: 'Vietnam', t: '越南' }, { w: 'Singapore', t: '新加坡' }, { w: 'Malaysia', t: '马来西亚' }, { w: 'Indonesia', t: '印度尼西亚' },
+                  { w: 'Egypt', t: '埃及' }, { w: 'Turkey', t: '土耳其' }, { w: 'Switzerland', t: '瑞士' }, { w: 'Netherlands', t: '荷兰' }]
+              }]
+            }
+          ]
+        },
+        grammar: {
+          title: '句式学习与系统语法', subtitle: 'Sentence Patterns & Grammar',
+          sentenceGroups: [
+            {
+              cat: '打招呼与问候', desc: 'Greetings & Salutations', sentences: [
+                { main: 'Hello!', sub: '你好！' },
+                { main: 'Good morning.', sub: '早上好。' },
+                { main: 'Good afternoon.', sub: '下午好。' },
+                { main: 'Good evening.', sub: '晚上好。' },
+                { main: 'How are you?', sub: '你好吗？' },
+                { main: 'Nice to meet you.', sub: '很高兴认识你。' }
+              ]
+            },
+            {
+              cat: '自我介绍', desc: 'Introduction', sentences: [
+                { main: 'My name is David.', sub: '我的名字叫David。' },
+                { main: 'I am 25 years old.', sub: '我25岁。' },
+                { main: 'I am from China.', sub: '我来自中国。' },
+                { main: 'I am a student.', sub: '我是一名学生。' },
+                { main: 'I live in Beijing.', sub: '我住在北京。' },
+                { main: 'Nice to meet you.', sub: '很高兴认识你。' }
+              ]
+            },
+            {
+              cat: '兴趣爱好', desc: 'Hobbies & Interests', sentences: [
+                { main: 'I like reading books.', sub: '我喜欢看书。' },
+                { main: 'I enjoy listening to music.', sub: '我喜欢听音乐。' },
+                { main: 'I love cooking.', sub: '我喜欢做饭。' },
+                { main: 'My hobby is playing basketball.', sub: '我的爱好是打篮球。' },
+                { main: 'I usually watch movies on weekends.', sub: '我周末通常看电影。' },
+                { main: 'I am interested in learning languages.', sub: '我对学语言感兴趣。' }
+              ]
+            },
+            {
+              cat: '日常生活', desc: 'Daily Life', sentences: [
+                { main: 'I wake up at 7 every morning.', sub: '我每天早上7点起床。' },
+                { main: 'I have breakfast at home.', sub: '我在家吃早餐。' },
+                { main: 'I go to work by bus.', sub: '我坐公交车上班。' },
+                { main: 'I finish work at 6 pm.', sub: '我下午6点下班。' },
+                { main: 'I usually go to bed at 11.', sub: '我通常11点睡觉。' },
+                { main: 'I exercise three times a week.', sub: '我一周运动三次。' }
+              ]
+            },
+            {
+              cat: '餐厅点餐', desc: 'Ordering Food', sentences: [
+                { main: 'Can I see the menu, please?', sub: '请给我看一下菜单。' },
+                { main: 'I would like a coffee.', sub: '我想要一杯咖啡。' },
+                { main: 'How much is this?', sub: '这个多少钱？' },
+                { main: 'The bill, please.', sub: '请买单。' },
+                { main: 'This is delicious!', sub: '这个很好吃！' },
+                { main: 'Do you have vegetarian food?', sub: '你们有素食吗？' }
+              ]
+            },
+            {
+              cat: '问路与交通', desc: 'Directions & Transport', sentences: [
+                { main: 'Excuse me, where is the station?', sub: '打扰一下，车站在哪里？' },
+                { main: 'How do I get to the airport?', sub: '怎么去机场？' },
+                { main: 'Turn left at the corner.', sub: '在拐角处左转。' },
+                { main: 'Go straight for two blocks.', sub: '直走两个街区。' },
+                { main: 'Is it far from here?', sub: '离这里远吗？' },
+                { main: 'I want to take a taxi.', sub: '我想打出租车。' }
+              ]
+            },
+            {
+              cat: '购物', desc: 'Shopping', sentences: [
+                { main: 'How much does this cost?', sub: '这个多少钱？' },
+                { main: 'Can I try this on?', sub: '我可以试穿吗？' },
+                { main: 'Do you have a smaller size?', sub: '有小一号的吗？' },
+                { main: 'I will take this one.', sub: '我要这个。' },
+                { main: 'Can I pay by card?', sub: '可以刷卡吗？' },
+                { main: 'Do you have this in another color?', sub: '有其他颜色的吗？' }
+              ]
+            },
+            {
+              cat: '表达感受', desc: 'Feelings & Opinions', sentences: [
+                { main: 'I am very happy today.', sub: '我今天很开心。' },
+                { main: 'I feel a little tired.', sub: '我感觉有点累。' },
+                { main: 'I think this is a good idea.', sub: '我觉得这是个好主意。' },
+                { main: 'I am sorry about that.', sub: '关于那件事我很抱歉。' },
+                { main: 'I agree with you.', sub: '我同意你的看法。' },
+                { main: 'I don\'t understand.', sub: '我不明白。' }
+              ]
+            },
+            {
+              cat: '请求帮助', desc: 'Asking for Help', sentences: [
+                { main: 'Can you help me?', sub: '你能帮我吗？' },
+                { main: 'Could you speak more slowly?', sub: '你能说慢一点吗？' },
+                { main: 'What does this word mean?', sub: '这个词是什么意思？' },
+                { main: 'How do you say this in English?', sub: '这个用英语怎么说？' },
+                { main: 'I need a doctor.', sub: '我需要看医生。' },
+                { main: 'Can you show me on the map?', sub: '你能在地图上指给我看吗？' }
+              ]
+            }
+          ],
+          tables: []
+        },
+        ttsLang: 'en-US'
+      },
+      es: {
+        sounds: {
+          title: 'Fundamentos de Pronunciación', subtitle: 'Haz clic para escuchar · Click to hear', categories: [
+            { name: '27 Letras', items: 'A B C D E F G H I J K L M N Ñ O P Q R S T U V W X Y Z'.split(' ').map(l => ({ text: l, sub: l.toLowerCase(), speak: l })) },
+            { name: 'Vocales', items: [{ text: 'A', sub: '/a/', speak: 'a' }, { text: 'E', sub: '/e/', speak: 'e' }, { text: 'I', sub: '/i/', speak: 'i' }, { text: 'O', sub: '/o/', speak: 'o' }, { text: 'U', sub: '/u/', speak: 'u' }] },
+            {
+              name: 'Diptongos', items: [
+                { text: 'AI', sub: 'aire', speak: 'aire' }, { text: 'AU', sub: 'auto', speak: 'auto' }, { text: 'EI', sub: 'seis', speak: 'seis' },
+                { text: 'EU', sub: 'Europa', speak: 'Europa' }, { text: 'IA', sub: 'piano', speak: 'piano' }, { text: 'IE', sub: 'bien', speak: 'bien' },
+                { text: 'IO', sub: 'radio', speak: 'radio' }, { text: 'IU', sub: 'ciudad', speak: 'ciudad' }, { text: 'OI', sub: 'oigo', speak: 'oigo' },
+                { text: 'UA', sub: 'agua', speak: 'agua' }, { text: 'UE', sub: 'bueno', speak: 'bueno' }, { text: 'UO', sub: 'antiguo', speak: 'antiguo' }]
+            },
+            {
+              name: 'Consonantes Especiales', items: [
+                { text: 'Ñ', sub: 'año', speak: 'año' }, { text: 'LL', sub: 'llave', speak: 'llave' }, { text: 'RR', sub: 'perro', speak: 'perro' },
+                { text: 'CH', sub: 'chico', speak: 'chico' }, { text: 'GU', sub: 'guitarra', speak: 'guitarra' }, { text: 'QU', sub: 'queso', speak: 'queso' }]
+            }
+          ]
+        },
+        vocab: {
+          title: 'Power 500 Vocabulario', categories: [
+            {
+              id: 'pronouns', name: 'Pronombres 人称', subgroups: [{
+                label: null, items: [
+                  { w: 'yo', t: 'I' }, { w: 'tú', t: 'you' }, { w: 'él', t: 'he' }, { w: 'ella', t: 'she' }, { w: 'nosotros', t: 'we' },
+                  { w: 'ellos', t: 'they' }, { w: 'usted', t: 'you(formal)' }, { w: 'me', t: 'me' }, { w: 'te', t: 'you(obj)' }, { w: 'nos', t: 'us' }]
+              }]
+            },
+            { id: 'numbers', name: 'Números 数字', subgroups: [{ label: null, items: esNumbers() }] },
+            {
+              id: 'time', name: 'Tiempo 时间', subgroups: [
+                { label: 'Días de la semana 星期', items: [{ w: 'lunes', t: 'Mon' }, { w: 'martes', t: 'Tue' }, { w: 'miércoles', t: 'Wed' }, { w: 'jueves', t: 'Thu' }, { w: 'viernes', t: 'Fri' }, { w: 'sábado', t: 'Sat' }, { w: 'domingo', t: 'Sun' }] },
+                { label: 'Meses 月份', items: [{ w: 'enero', t: 'Jan' }, { w: 'febrero', t: 'Feb' }, { w: 'marzo', t: 'Mar' }, { w: 'abril', t: 'Apr' }, { w: 'mayo', t: 'May' }, { w: 'junio', t: 'Jun' }, { w: 'julio', t: 'Jul' }, { w: 'agosto', t: 'Aug' }, { w: 'septiembre', t: 'Sep' }, { w: 'octubre', t: 'Oct' }, { w: 'noviembre', t: 'Nov' }, { w: 'diciembre', t: 'Dec' }] },
+                { label: 'Estaciones 季节', items: [{ w: 'primavera', t: 'spring' }, { w: 'verano', t: 'summer' }, { w: 'otoño', t: 'autumn' }, { w: 'invierno', t: 'winter' }] },
+                { label: 'Unidades 时间单位', items: [{ w: 'hora', t: 'hour' }, { w: 'minuto', t: 'minute' }, { w: 'segundo', t: 'second' }, { w: 'hoy', t: 'today' }, { w: 'mañana', t: 'tomorrow' }, { w: 'ayer', t: 'yesterday' }, { w: 'la mañana', t: 'morning' }, { w: 'el mediodía', t: 'noon' }, { w: 'la tarde', t: 'afternoon' }, { w: 'la noche', t: 'evening' }, { w: 'ahora', t: 'now' }, { w: 'después', t: 'later' }, { w: 'temprano', t: 'early' }, { w: 'tarde', t: 'late' }] }
+              ]
+            },
+            {
+              id: 'relations', name: 'Relaciones 关系', subgroups: [{
+                label: null, items: [
+                  { w: 'padre', t: 'father' }, { w: 'madre', t: 'mother' }, { w: 'hermano', t: 'brother' }, { w: 'hermana', t: 'sister' }, { w: 'amigo', t: 'friend' },
+                  { w: 'hijo', t: 'son' }, { w: 'hija', t: 'daughter' }, { w: 'esposo', t: 'husband' }, { w: 'esposa', t: 'wife' },
+                  { w: 'niño', t: 'child' }, { w: 'profesor', t: 'teacher' }, { w: 'estudiante', t: 'student' }, { w: 'vecino', t: 'neighbor' }, { w: 'compañero', t: 'colleague' }, { w: 'abuelo', t: 'grandfather' }, { w: 'abuela', t: 'grandmother' }, { w: 'tío', t: 'uncle' }, { w: 'tía', t: 'aunt' }, { w: 'sobrino', t: 'nephew' }, { w: 'sobrina', t: 'niece' }, { w: 'primo', t: 'cousin' }]
+              }]
+            },
+            { id: 'body', name: 'Cuerpo 身体', subgroups: [{ label: null, items: [{ w: 'cabeza', t: 'head' }, { w: 'ojo', t: 'eye' }, { w: 'oreja', t: 'ear' }, { w: 'boca', t: 'mouth' }, { w: 'nariz', t: 'nose' }, { w: 'cara', t: 'face' }, { w: 'mano', t: 'hand' }, { w: 'brazo', t: 'arm' }, { w: 'pierna', t: 'leg' }, { w: 'pie', t: 'foot' }, { w: 'cuerpo', t: 'body' }, { w: 'pelo', t: 'hair' }, { w: 'médico', t: 'doctor' }, { w: 'medicina', t: 'medicine' }, { w: 'dolor', t: 'pain' }] }] },
+            {
+              id: 'verbs', name: 'Verbos 高频动词', subgroups: [{
+                label: null, items: [
+                  { w: 'ser', t: 'to be' }, { w: 'estar', t: 'to be' }, { w: 'tener', t: 'to have' }, { w: 'ir', t: 'to go' }, { w: 'venir', t: 'to come' },
+                  { w: 'comer', t: 'to eat' }, { w: 'beber', t: 'to drink' }, { w: 'dormir', t: 'to sleep' }, { w: 'querer', t: 'to want' },
+                  { w: 'gustar', t: 'to like' }, { w: 'necesitar', t: 'to need' }, { w: 'poder', t: 'can' }, { w: 'saber', t: 'to know' },
+                  { w: 'decir', t: 'to say' }, { w: 'ver', t: 'to see' }, { w: 'oír', t: 'to hear' }, { w: 'escribir', t: 'to write' },
+                  { w: 'comprar', t: 'to buy' }, { w: 'trabajar', t: 'to work' }, { w: 'jugar', t: 'to play' },
+                  { w: 'dar', t: 'to give' }, { w: 'tomar', t: 'to take' }, { w: 'hacer', t: 'to make' }, { w: 'pensar', t: 'to think' },
+                  { w: 'correr', t: 'to run' }, { w: 'caminar', t: 'to walk' }, { w: 'leer', t: 'to read' }, { w: 'abrir', t: 'to open' },
+                  { w: 'cerrar', t: 'to close' }, { w: 'amar', t: 'to love' }, { w: 'ayudar', t: 'to help' },
+                  { w: 'preguntar', t: 'to ask' }, { w: 'responder', t: 'to answer' }, { w: 'aprender', t: 'to learn' },
+                  { w: 'enseñar', t: 'to teach' }, { w: 'esperar', t: 'to wait' }, { w: 'intentar', t: 'to try' },
+                  { w: 'usar', t: 'to use' }, { w: 'encontrar', t: 'to find' }, { w: 'llamar', t: 'to call' }]
+              }]
+            },
+            {
+              id: 'emotions', name: 'Emociones 情感', subgroups: [{
+                label: null, items: [
+                  { w: 'feliz', t: 'happy' }, { w: 'triste', t: 'sad' }, { w: 'cansado', t: 'tired' }, { w: 'bueno', t: 'good' }, { w: 'malo', t: 'bad' },
+                  { w: 'grande', t: 'big' }, { w: 'pequeño', t: 'small' }, { w: 'caliente', t: 'hot' }, { w: 'frío', t: 'cold' },
+                  { w: 'nuevo', t: 'new' }, { w: 'viejo', t: 'old' }, { w: 'hermoso', t: 'beautiful' },
+                  { w: 'lo siento', t: 'sorry' }, { w: 'gracias', t: 'thanks' }, { w: 'por favor', t: 'please' }, { w: 'sí', t: 'yes' }, { w: 'no', t: 'no' }]
+              }]
+            },
+            {
+              id: 'home', name: 'Hogar 居家', subgroups: [{
+                label: null, items: [
+                  { w: 'casa', t: 'house' }, { w: 'habitación', t: 'room' }, { w: 'cocina', t: 'kitchen' }, { w: 'dormitorio', t: 'bedroom' }, { w: 'baño', t: 'bathroom' },
+                  { w: 'mesa', t: 'table' }, { w: 'silla', t: 'chair' }, { w: 'cama', t: 'bed' }, { w: 'puerta', t: 'door' }, { w: 'ventana', t: 'window' },
+                  { w: 'luz', t: 'light' }, { w: 'teléfono', t: 'phone' }, { w: 'computadora', t: 'computer' }, { w: 'llave', t: 'key' }, { w: 'reloj', t: 'clock' }]
+              }]
+            },
+            { id: 'clothes', name: 'Ropa 衣物', subgroups: [{ label: null, items: [{ w: 'ropa', t: 'clothes' }, { w: 'camisa', t: 'shirt' }, { w: 'camiseta', t: 't-shirt' }, { w: 'pantalones', t: 'pants' }, { w: 'vestido', t: 'dress' }, { w: 'falda', t: 'skirt' }, { w: 'chaqueta', t: 'jacket' }, { w: 'abrigo', t: 'coat' }, { w: 'zapato', t: 'shoe' }, { w: 'sombrero', t: 'hat' }, { w: 'calcetín', t: 'sock' }, { w: 'bolso', t: 'bag' }, { w: 'gafas', t: 'glasses' }, { w: 'cinturón', t: 'belt' }, { w: 'anillo', t: 'ring' }] }] },
+            {
+              id: 'restaurant', name: 'Restaurante 餐厅', subgroups: [{
+                label: null, items: [
+                  { w: 'agua', t: 'water' }, { w: 'arroz', t: 'rice' }, { w: 'pan', t: 'bread' }, { w: 'carne', t: 'meat' }, { w: 'pescado', t: 'fish' },
+                  { w: 'huevo', t: 'egg' }, { w: 'fruta', t: 'fruit' }, { w: 'café', t: 'coffee' }, { w: 'té', t: 'tea' }, { w: 'leche', t: 'milk' },
+                  { w: 'azúcar', t: 'sugar' }, { w: 'sal', t: 'salt' }, { w: 'menú', t: 'menu' }, { w: 'cuenta', t: 'bill' },
+                  { w: 'tenedor', t: 'fork' }, { w: 'cuchillo', t: 'knife' }, { w: 'cuchara', t: 'spoon' }, { w: 'plato', t: 'plate' },
+                  { w: 'manzana', t: 'apple' }, { w: 'plátano', t: 'banana' }, { w: 'pastel', t: 'cake' }, { w: 'pollo', t: 'chicken' }, { w: 'fideos', t: 'noodle' },
+                  { w: 'sopa', t: 'soup' }, { w: 'jugo', t: 'juice' }, { w: 'cerveza', t: 'beer' }, { w: 'vino', t: 'wine' }, { w: 'queso', t: 'cheese' },
+                  { w: 'pizza', t: 'pizza' }, { w: 'sándwich', t: 'sandwich' }, { w: 'chocolate', t: 'chocolate' }, { w: 'helado', t: 'ice cream' }]
+              }]
+            },
+            {
+              id: 'transport', name: 'Transporte 交通', subgroups: [{
+                label: null, items: [
+                  { w: 'aeropuerto', t: 'airport' }, { w: 'estación', t: 'station' }, { w: 'hotel', t: 'hotel' }, { w: 'autobús', t: 'bus' }, { w: 'taxi', t: 'taxi' },
+                  { w: 'tren', t: 'train' }, { w: 'izquierda', t: 'left' }, { w: 'derecha', t: 'right' }, { w: 'calle', t: 'street' }, { w: 'mapa', t: 'map' },
+                  { w: 'boleto', t: 'ticket' }, { w: 'pasaporte', t: 'passport' }, { w: 'banco', t: 'bank' }, { w: 'hospital', t: 'hospital' }, { w: 'escuela', t: 'school' }]
+              }]
+            },
+            { id: 'jobs', name: 'Trabajos 职业', subgroups: [{ label: null, items: [{ w: 'policía', t: 'police' }, { w: 'trabajador', t: 'worker' }, { w: 'conductor', t: 'driver' }, { w: 'jefe', t: 'boss' }, { w: 'empleado', t: 'staff' }, { w: 'granjero', t: 'farmer' }, { w: 'cocinero', t: 'cook' }, { w: 'artista', t: 'artist' }, { w: 'cantante', t: 'singer' }, { w: 'actor', t: 'actor' }, { w: 'escritor', t: 'writer' }, { w: 'enfermera', t: 'nurse' }, { w: 'gerente', t: 'manager' }, { w: 'piloto', t: 'pilot' }, { w: 'ingeniero', t: 'engineer' }, { w: 'fotógrafo', t: 'photographer' }] }] },
+            {
+              id: 'hobbies', name: 'Pasatiempos 爱好', subgroups: [{
+                label: null, items: [
+                  { w: 'música', t: 'music' }, { w: 'película', t: 'movie' }, { w: 'programación', t: 'programming' }, { w: 'lectura', t: 'reading' }, { w: 'fotografía', t: 'photography' },
+                  { w: 'fútbol', t: 'football' }, { w: 'baloncesto', t: 'basketball' }, { w: 'tenis', t: 'tennis' }, { w: 'natación', t: 'swimming' }, { w: 'correr', t: 'running' },
+                  { w: 'senderismo', t: 'hiking' }, { w: 'yoga', t: 'yoga' }, { w: 'bailar', t: 'dancing' }, { w: 'pintura', t: 'painting' }, { w: 'cocinar', t: 'cooking' },
+                  { w: 'viajar', t: 'travel' }, { w: 'juegos', t: 'gaming' }, { w: 'cantar', t: 'singing' }]
+              }]
+            },
+            { id: 'nature', name: 'Naturaleza 自然', subgroups: [{ label: null, items: [{ w: 'perro', t: 'dog' }, { w: 'gato', t: 'cat' }, { w: 'pájaro', t: 'bird' }, { w: 'pez', t: 'fish' }, { w: 'caballo', t: 'horse' }, { w: 'árbol', t: 'tree' }, { w: 'flor', t: 'flower' }, { w: 'hierba', t: 'grass' }, { w: 'montaña', t: 'mountain' }, { w: 'río', t: 'river' }, { w: 'mar', t: 'sea' }, { w: 'cielo', t: 'sky' }, { w: 'sol', t: 'sun' }, { w: 'luna', t: 'moon' }, { w: 'estrella', t: 'star' }] }] },
+            {
+              id: 'colors', name: 'Colores 颜色', subgroups: [{
+                label: null, items: [
+                  { w: 'rojo', t: 'red' }, { w: 'naranja', t: 'orange' }, { w: 'amarillo', t: 'yellow' }, { w: 'verde', t: 'green' }, { w: 'azul', t: 'blue' },
+                  { w: 'morado', t: 'purple' }, { w: 'rosa', t: 'pink' }, { w: 'negro', t: 'black' }, { w: 'blanco', t: 'white' }, { w: 'gris', t: 'gray' },
+                  { w: 'marrón', t: 'brown' }, { w: 'dorado', t: 'gold' }]
+              }]
+            },
+            {
+              id: 'directions', name: 'Dirección 方位', subgroups: [{
+                label: null, items: [
+                  { w: 'este', t: 'this' }, { w: 'ese', t: 'that' }, { w: 'aquí', t: 'here' }, { w: 'allí', t: 'there' },
+                  { w: 'delante', t: 'front' }, { w: 'detrás', t: 'back' }, { w: 'izquierda', t: 'left' }, { w: 'derecha', t: 'right' },
+                  { w: 'arriba', t: 'up' }, { w: 'abajo', t: 'down' }, { w: 'dentro', t: 'inside' }, { w: 'fuera', t: 'outside' },
+                  { w: 'cerca', t: 'near' }, { w: 'lejos', t: 'far' }, { w: 'entre', t: 'between' }, { w: 'al lado', t: 'next to' },
+                  { w: 'encima', t: 'above' }, { w: 'debajo', t: 'below' }, { w: 'enfrente', t: 'opposite' }, { w: 'alrededor', t: 'around' }]
+              }]
+            },
+            {
+              id: 'weather', name: 'Clima 天气', subgroups: [{
+                label: null, items: [
+                  { w: 'soleado', t: 'sunny' }, { w: 'nublado', t: 'cloudy' }, { w: 'lluvioso', t: 'rainy' }, { w: 'nevado', t: 'snowy' }, { w: 'ventoso', t: 'windy' },
+                  { w: 'tormenta', t: 'storm' }, { w: 'niebla', t: 'fog' }, { w: 'trueno', t: 'thunder' }, { w: 'relámpago', t: 'lightning' }, { w: 'arcoíris', t: 'rainbow' },
+                  { w: 'caliente', t: 'hot' }, { w: 'frío', t: 'cold' }, { w: 'cálido', t: 'warm' }, { w: 'fresco', t: 'cool' }, { w: 'húmedo', t: 'humid' },
+                  { w: 'seco', t: 'dry' }, { w: 'escarcha', t: 'frost' }, { w: 'granizo', t: 'hail' }, { w: 'brisa', t: 'breeze' }, { w: 'temperatura', t: 'temperature' },
+                  { w: 'paraguas', t: 'umbrella' }, { w: 'pronóstico', t: 'forecast' }, { w: 'sol', t: 'sunshine' }, { w: 'nube', t: 'cloud' }]
+              }]
+            },
+            {
+              id: 'cosmetics', name: 'Cuidado Personal 个人洗护', subgroups: [{
+                label: null, items: [
+                  { w: 'champú', t: 'shampoo' }, { w: 'acondicionador', t: 'conditioner' }, { w: 'jabón', t: 'soap' }, { w: 'cepillo de dientes', t: 'toothbrush' }, { w: 'pasta de dientes', t: 'toothpaste' },
+                  { w: 'toalla', t: 'towel' }, { w: 'peine', t: 'comb' }, { w: 'afeitadora', t: 'razor' }, { w: 'loción', t: 'lotion' }, { w: 'protector solar', t: 'sunscreen' },
+                  { w: 'lápiz labial', t: 'lipstick' }, { w: 'rímel', t: 'mascara' }, { w: 'perfume', t: 'perfume' }, { w: 'base de maquillaje', t: 'foundation' }, { w: 'esmalte de uñas', t: 'nail polish' },
+                  { w: 'crema hidratante', t: 'moisturizer' }, { w: 'limpiador facial', t: 'cleanser' }, { w: 'desodorante', t: 'deodorant' }, { w: 'pañuelo', t: 'tissue' }, { w: 'algodón', t: 'cotton pad' },
+                  { w: 'espejo', t: 'mirror' }, { w: 'gel de ducha', t: 'shower gel' }, { w: 'jabón líquido', t: 'body wash' }, { w: 'crema de manos', t: 'hand cream' }]
+              }]
+            },
+            {
+              id: 'countries', name: 'Países 国家', subgroups: [{
+                label: null, items: [
+                  { w: 'China', t: 'China' }, { w: 'Estados Unidos', t: 'United States' }, { w: 'Reino Unido', t: 'United Kingdom' }, { w: 'Japón', t: 'Japan' }, { w: 'Corea del Sur', t: 'South Korea' },
+                  { w: 'Francia', t: 'France' }, { w: 'Alemania', t: 'Germany' }, { w: 'Italia', t: 'Italy' }, { w: 'España', t: 'Spain' }, { w: 'Rusia', t: 'Russia' },
+                  { w: 'Canadá', t: 'Canada' }, { w: 'Australia', t: 'Australia' }, { w: 'Brasil', t: 'Brazil' }, { w: 'India', t: 'India' }, { w: 'México', t: 'Mexico' },
+                  { w: 'Tailandia', t: 'Thailand' }, { w: 'Vietnam', t: 'Vietnam' }, { w: 'Singapur', t: 'Singapore' }, { w: 'Malasia', t: 'Malaysia' }, { w: 'Indonesia', t: 'Indonesia' },
+                  { w: 'Egipto', t: 'Egypt' }, { w: 'Turquía', t: 'Turkey' }, { w: 'Suiza', t: 'Switzerland' }, { w: 'Países Bajos', t: 'Netherlands' }]
+              }]
+            }
+          ]
+        },
+        grammar: {
+          title: 'Oraciones y Gramática', subtitle: '句式与语法系统',
+          sentenceGroups: [
+            {
+              cat: '打招呼与问候', desc: 'Saludos y Despedidas', sentences: [
+                { main: '¡Hola!', sub: '你好！' },
+                { main: 'Buenos días.', sub: '早上好。' },
+                { main: 'Buenas tardes.', sub: '下午好。' },
+                { main: 'Buenas noches.', sub: '晚上好。' },
+                { main: '¿Cómo estás?', sub: '你好吗？' },
+                { main: 'Mucho gusto.', sub: '很高兴认识你。' }
+              ]
+            },
+            {
+              cat: '自我介绍', desc: 'Presentaciones', sentences: [
+                { main: 'Me llamo María.', sub: 'My name is María.' },
+                { main: 'Tengo 25 años.', sub: 'I am 25 years old.' },
+                { main: 'Soy de México.', sub: 'I am from Mexico.' },
+                { main: 'Soy estudiante.', sub: 'I am a student.' },
+                { main: 'Vivo en Madrid.', sub: 'I live in Madrid.' },
+                { main: 'Mucho gusto.', sub: 'Nice to meet you.' }
+              ]
+            },
+            {
+              cat: '兴趣爱好', desc: 'Pasatiempos', sentences: [
+                { main: 'Me gusta leer libros.', sub: 'I like reading books.' },
+                { main: 'Me encanta escuchar música.', sub: 'I love listening to music.' },
+                { main: 'Me gusta cocinar.', sub: 'I like cooking.' },
+                { main: 'Mi pasatiempo es jugar fútbol.', sub: 'My hobby is playing football.' },
+                { main: 'Los fines de semana veo películas.', sub: 'I watch movies on weekends.' },
+                { main: 'Me interesa aprender idiomas.', sub: 'I\'m interested in learning languages.' }
+              ]
+            },
+            {
+              cat: '日常生活', desc: 'Vida diaria', sentences: [
+                { main: 'Me despierto a las 7 cada mañana.', sub: 'I wake up at 7 every morning.' },
+                { main: 'Desayuno en casa.', sub: 'I have breakfast at home.' },
+                { main: 'Voy al trabajo en autobús.', sub: 'I go to work by bus.' },
+                { main: 'Termino de trabajar a las 6.', sub: 'I finish work at 6.' },
+                { main: 'Normalmente me acuesto a las 11.', sub: 'I usually go to bed at 11.' },
+                { main: 'Hago ejercicio tres veces a la semana.', sub: 'I exercise 3 times a week.' }
+              ]
+            },
+            {
+              cat: '餐厅点餐', desc: 'En el restaurante', sentences: [
+                { main: '¿Puedo ver el menú, por favor?', sub: 'Can I see the menu, please?' },
+                { main: 'Quisiera un café.', sub: 'I would like a coffee.' },
+                { main: '¿Cuánto cuesta esto?', sub: 'How much is this?' },
+                { main: 'La cuenta, por favor.', sub: 'The bill, please.' },
+                { main: '¡Está delicioso!', sub: 'This is delicious!' },
+                { main: '¿Tienen comida vegetariana?', sub: 'Do you have vegetarian food?' }
+              ]
+            },
+            {
+              cat: '问路与交通', desc: 'Direcciones', sentences: [
+                { main: 'Disculpe, ¿dónde está la estación?', sub: 'Excuse me, where is the station?' },
+                { main: '¿Cómo llego al aeropuerto?', sub: 'How do I get to the airport?' },
+                { main: 'Gire a la izquierda en la esquina.', sub: 'Turn left at the corner.' },
+                { main: 'Siga recto dos cuadras.', sub: 'Go straight for two blocks.' },
+                { main: '¿Está lejos de aquí?', sub: 'Is it far from here?' },
+                { main: 'Quiero tomar un taxi.', sub: 'I want to take a taxi.' }
+              ]
+            },
+            {
+              cat: '购物', desc: 'De compras', sentences: [
+                { main: '¿Cuánto cuesta esto?', sub: 'How much does this cost?' },
+                { main: '¿Puedo probármelo?', sub: 'Can I try this on?' },
+                { main: '¿Tiene una talla más pequeña?', sub: 'Do you have a smaller size?' },
+                { main: 'Me llevo este.', sub: 'I\'ll take this one.' },
+                { main: '¿Puedo pagar con tarjeta?', sub: 'Can I pay by card?' },
+                { main: '¿Lo tiene en otro color?', sub: 'Do you have another color?' }
+              ]
+            },
+            {
+              cat: '表达感受', desc: 'Sentimientos', sentences: [
+                { main: 'Hoy estoy muy feliz.', sub: 'I am very happy today.' },
+                { main: 'Estoy un poco cansado.', sub: 'I feel a little tired.' },
+                { main: 'Creo que es buena idea.', sub: 'I think it\'s a good idea.' },
+                { main: 'Lo siento mucho.', sub: 'I\'m very sorry.' },
+                { main: 'Estoy de acuerdo contigo.', sub: 'I agree with you.' },
+                { main: 'No entiendo.', sub: 'I don\'t understand.' }
+              ]
+            },
+            {
+              cat: '请求帮助', desc: 'Pedir ayuda', sentences: [
+                { main: '¿Puede ayudarme?', sub: 'Can you help me?' },
+                { main: '¿Puede hablar más despacio?', sub: 'Could you speak more slowly?' },
+                { main: '¿Qué significa esta palabra?', sub: 'What does this word mean?' },
+                { main: '¿Cómo se dice esto en español?', sub: 'How do you say this in Spanish?' },
+                { main: 'Necesito un médico.', sub: 'I need a doctor.' },
+                { main: '¿Puede mostrármelo en el mapa?', sub: 'Can you show me on the map?' }
+              ]
+            }
+          ],
+          tables: [
+            {
+              name: 'Conjugación · Present Tense 动词变位',
+              headers: ['Pronoun', '-AR (hablar)', '-ER (comer)', '-IR (vivir)'],
+              rows: [['yo', 'hablo', 'como', 'vivo'], ['tú', 'hablas', 'comes', 'vives'], ['él/ella', 'habla', 'come', 'vive'], ['nosotros', 'hablamos', 'comemos', 'vivimos'], ['ellos', 'hablan', 'comen', 'viven']]
+            },
+            {
+              name: 'Pronoun Matrix 代词矩阵',
+              headers: ['Subject', 'Object', 'Indirect', 'Reflexive'],
+              rows: [['yo', 'me', 'me', 'me'], ['tú', 'te', 'te', 'te'], ['él/ella', 'lo/la', 'le', 'se'], ['nosotros', 'nos', 'nos', 'nos'], ['ellos', 'los/las', 'les', 'se']]
+            },
+            {
+              name: 'Noun Gender 名词阴阳性',
+              headers: ['Rule', 'Masculine (el)', 'Feminine (la)'],
+              rows: [['Ending -o/-a', 'el libro', 'la casa'], ['Ending -or/-ión', 'el profesor', 'la canción'], ['Ending -ma', 'el problema', 'la cama'], ['Plural', 'los libros', 'las casas']]
+            }
+          ]
+        },
+        ttsLang: 'es-ES'
+      },
+      kr: {
+        sounds: {
+          title: '발음 기초 · 发音基石', subtitle: '点击方块即发音', categories: [
+            {
+              name: '기본 모음 · 基本元音', items: [
+                { text: 'ㅏ', sub: 'a', speak: '아' }, { text: 'ㅑ', sub: 'ya', speak: '야' }, { text: 'ㅓ', sub: 'eo', speak: '어' }, { text: 'ㅕ', sub: 'yeo', speak: '여' },
+                { text: 'ㅗ', sub: 'o', speak: '오' }, { text: 'ㅛ', sub: 'yo', speak: '요' }, { text: 'ㅜ', sub: 'u', speak: '우' }, { text: 'ㅠ', sub: 'yu', speak: '유' },
+                { text: 'ㅡ', sub: 'eu', speak: '으' }, { text: 'ㅣ', sub: 'i', speak: '이' }]
+            },
+            {
+              name: '복합 모음 · 复合元音', items: [
+                { text: 'ㅐ', sub: 'ae', speak: '애' }, { text: 'ㅒ', sub: 'yae', speak: '얘' }, { text: 'ㅔ', sub: 'e', speak: '에' }, { text: 'ㅖ', sub: 'ye', speak: '예' },
+                { text: 'ㅘ', sub: 'wa', speak: '와' }, { text: 'ㅙ', sub: 'wae', speak: '왜' }, { text: 'ㅚ', sub: 'oe', speak: '외' }, { text: 'ㅝ', sub: 'wo', speak: '워' },
+                { text: 'ㅞ', sub: 'we', speak: '웨' }, { text: 'ㅟ', sub: 'wi', speak: '위' }, { text: 'ㅢ', sub: 'ui', speak: '의' }]
+            },
+            {
+              name: '기본 자음 · 基本辅音', items: [
+                { text: 'ㄱ', sub: 'g/k', speak: '그' }, { text: 'ㄴ', sub: 'n', speak: '느' }, { text: 'ㄷ', sub: 'd/t', speak: '드' }, { text: 'ㄹ', sub: 'r/l', speak: '르' },
+                { text: 'ㅁ', sub: 'm', speak: '므' }, { text: 'ㅂ', sub: 'b/p', speak: '브' }, { text: 'ㅅ', sub: 's', speak: '스' }, { text: 'ㅇ', sub: 'ng', speak: '응' },
+                { text: 'ㅈ', sub: 'j', speak: '즈' }, { text: 'ㅊ', sub: 'ch', speak: '츠' }, { text: 'ㅋ', sub: 'k', speak: '크' }, { text: 'ㅌ', sub: 't', speak: '트' },
+                { text: 'ㅍ', sub: 'p', speak: '프' }, { text: 'ㅎ', sub: 'h', speak: '흐' }]
+            },
+            {
+              name: '쌍자음 · 双辅音', items: [
+                { text: 'ㄲ', sub: 'kk', speak: '끄' }, { text: 'ㄸ', sub: 'tt', speak: '뜨' }, { text: 'ㅃ', sub: 'pp', speak: '쁘' },
+                { text: 'ㅆ', sub: 'ss', speak: '쓰' }, { text: 'ㅉ', sub: 'jj', speak: '쯔' }]
+            },
+            {
+              name: '받침 · Batchim 收音', items: [
+                { text: 'ㄱ', sub: 'k 먹', speak: '먹' }, { text: 'ㄴ', sub: 'n 눈', speak: '눈' }, { text: 'ㄷ', sub: 't 듣', speak: '듣' },
+                { text: 'ㄹ', sub: 'l 달', speak: '달' }, { text: 'ㅁ', sub: 'm 밤', speak: '밤' }, { text: 'ㅂ', sub: 'p 밥', speak: '밥' }, { text: 'ㅇ', sub: 'ng 강', speak: '강' }]
+            }
+          ]
+        },
+        vocab: {
+          title: '핵심 500 단어 · 核心500词汇', categories: [
+            {
+              id: 'pronouns', name: '인칭 人称', subgroups: [{
+                label: null, items: [
+                  { w: '나', t: '我' }, { w: '너', t: '你' }, { w: '그', t: '他' }, { w: '그녀', t: '她' }, { w: '우리', t: '我们' },
+                  { w: '그들', t: '他们' }, { w: '저', t: '我(敬)' }, { w: '당신', t: '您' }]
+              }]
+            },
+            { id: 'numbers', name: '숫자 数字', subgroups: [{ label: null, items: krNumbers() }] },
+            {
+              id: 'time', name: '시간 时间', subgroups: [
+                { label: '요일 星期', items: [{ w: '월요일', t: '周一' }, { w: '화요일', t: '周二' }, { w: '수요일', t: '周三' }, { w: '목요일', t: '周四' }, { w: '금요일', t: '周五' }, { w: '토요일', t: '周六' }, { w: '일요일', t: '周日' }] },
+                { label: '달 月份', items: [{ w: '1월', t: '1月' }, { w: '2월', t: '2月' }, { w: '3월', t: '3月' }, { w: '4월', t: '4月' }, { w: '5월', t: '5月' }, { w: '6월', t: '6月' }, { w: '7월', t: '7月' }, { w: '8월', t: '8月' }, { w: '9월', t: '9月' }, { w: '10월', t: '10月' }, { w: '11월', t: '11月' }, { w: '12월', t: '12月' }] },
+                { label: '계절 季节', items: [{ w: '봄', t: '春' }, { w: '여름', t: '夏' }, { w: '가을', t: '秋' }, { w: '겨울', t: '冬' }] },
+                { label: '시간 단위 时间单位', items: [{ w: '시간', t: '小时' }, { w: '분', t: '分钟' }, { w: '초', t: '秒' }, { w: '오늘', t: '今天' }, { w: '내일', t: '明天' }, { w: '어제', t: '昨天' }, { w: '아침', t: '早上' }, { w: '오후', t: '下午' }, { w: '저녁', t: '晚上' }, { w: '밤', t: '夜晚' }, { w: '지금', t: '现在' }, { w: '나중에', t: '稍后' }] }
+              ]
+            },
+            {
+              id: 'relations', name: '관계 关系', subgroups: [{
+                label: null, items: [
+                  { w: '아버지', t: '父亲' }, { w: '어머니', t: '母亲' }, { w: '형/오빠', t: '哥哥' }, { w: '누나/언니', t: '姐姐' }, { w: '친구', t: '朋友' },
+                  { w: '아들', t: '儿子' }, { w: '딸', t: '女儿' }, { w: '남편', t: '丈夫' }, { w: '아내', t: '妻子' },
+                  { w: '아이', t: '孩子' }, { w: '선생님', t: '老师' }, { w: '학생', t: '学生' }, { w: '이웃', t: '邻居' }, { w: '동료', t: '同事' }, { w: '할아버지', t: '祖父' }, { w: '할머니', t: '祖母' }, { w: '삼촌', t: '叔叔' }, { w: '이모', t: '阿姨' }, { w: '조카', t: '侄子' }, { w: '조카딸', t: '侄女' }, { w: '사촌', t: '表兄弟/姐妹' }]
+              }]
+            },
+            { id: 'body', name: '몸 身体', subgroups: [{ label: null, items: [{ w: '머리', t: '头' }, { w: '눈', t: '眼睛' }, { w: '귀', t: '耳朵' }, { w: '입', t: '嘴' }, { w: '코', t: '鼻子' }, { w: '얼굴', t: '脸' }, { w: '손', t: '手' }, { w: '팔', t: '手臂' }, { w: '다리', t: '腿' }, { w: '발', t: '脚' }, { w: '몸', t: '身体' }, { w: '머리카락', t: '头发' }, { w: '의사', t: '医生' }, { w: '약', t: '药' }, { w: '아픔', t: '痛' }] }] },
+            {
+              id: 'verbs', name: '핵심 동사 高频动词', subgroups: [{
+                label: null, items: [
+                  { w: '이다', t: '是' }, { w: '있다', t: '有' }, { w: '가다', t: '去' }, { w: '오다', t: '来' }, { w: '먹다', t: '吃' },
+                  { w: '마시다', t: '喝' }, { w: '자다', t: '睡' }, { w: '원하다', t: '想要' }, { w: '좋아하다', t: '喜欢' }, { w: '필요하다', t: '需要' },
+                  { w: '할 수 있다', t: '能' }, { w: '알다', t: '知道' }, { w: '말하다', t: '说' }, { w: '보다', t: '看' }, { w: '듣다', t: '听' },
+                  { w: '쓰다', t: '写' }, { w: '사다', t: '买' }, { w: '일하다', t: '工作' }, { w: '놀다', t: '玩' }, { w: '주다', t: '给' },
+                  { w: '만들다', t: '做' }, { w: '생각하다', t: '想' }, { w: '달리다', t: '跑' }, { w: '걷다', t: '走' },
+                  { w: '읽다', t: '读' }, { w: '열다', t: '开' }, { w: '닫다', t: '关' }, { w: '사랑하다', t: '爱' }, { w: '돕다', t: '帮' },
+                  { w: '묻다', t: '问' }, { w: '대답하다', t: '答' }, { w: '배우다', t: '学' }, { w: '가르치다', t: '教' },
+                  { w: '기다리다', t: '等' }, { w: '시도하다', t: '试' }, { w: '사용하다', t: '用' }, { w: '찾다', t: '找' },
+                  { w: '놓다', t: '放' }, { w: '전화하다', t: '打电话' }]
+              }]
+            },
+            {
+              id: 'emotions', name: '감정 표현 情感', subgroups: [{
+                label: null, items: [
+                  { w: '행복하다', t: '开心' }, { w: '슬프다', t: '伤心' }, { w: '피곤하다', t: '累' }, { w: '좋다', t: '好' }, { w: '나쁘다', t: '坏' },
+                  { w: '크다', t: '大' }, { w: '작다', t: '小' }, { w: '덥다', t: '热' }, { w: '춥다', t: '冷' },
+                  { w: '새롭다', t: '新' }, { w: '오래되다', t: '旧' }, { w: '아름답다', t: '美' },
+                  { w: '미안합니다', t: '对不起' }, { w: '감사합니다', t: '谢谢' }, { w: '주세요', t: '请' }, { w: '네', t: '是' }, { w: '아니요', t: '不' }]
+              }]
+            },
+            {
+              id: 'home', name: '집 居家', subgroups: [{
+                label: null, items: [
+                  { w: '집', t: '房子' }, { w: '방', t: '房间' }, { w: '부엌', t: '厨房' }, { w: '침실', t: '卧室' }, { w: '화장실', t: '浴室' },
+                  { w: '탁자', t: '桌子' }, { w: '의자', t: '椅子' }, { w: '침대', t: '床' }, { w: '문', t: '门' }, { w: '창문', t: '窗户' },
+                  { w: '불', t: '灯' }, { w: '전화', t: '电话' }, { w: '컴퓨터', t: '电脑' }, { w: '열쇠', t: '钥匙' }, { w: '시계', t: '钟' }]
+              }]
+            },
+            { id: 'clothes', name: '옷 衣物', subgroups: [{ label: null, items: [{ w: '옷', t: '衣服' }, { w: '셔츠', t: '衬衫' }, { w: '티셔츠', t: 'T恤' }, { w: '바지', t: '裤子' }, { w: '원피스', t: '连衣裙' }, { w: '치마', t: '裙子' }, { w: '재킷', t: '夹克' }, { w: '코트', t: '外套' }, { w: '신발', t: '鞋' }, { w: '모자', t: '帽子' }, { w: '양말', t: '袜子' }, { w: '가방', t: '包' }, { w: '안경', t: '眼镜' }, { w: '벨트', t: '皮带' }, { w: '반지', t: '戒指' }] }] },
+            {
+              id: 'restaurant', name: '식당 餐厅', subgroups: [{
+                label: null, items: [
+                  { w: '물', t: '水' }, { w: '밥', t: '米饭' }, { w: '빵', t: '面包' }, { w: '고기', t: '肉' }, { w: '생선', t: '鱼' },
+                  { w: '계란', t: '鸡蛋' }, { w: '과일', t: '水果' }, { w: '커피', t: '咖啡' }, { w: '차', t: '茶' }, { w: '우유', t: '牛奶' },
+                  { w: '설탕', t: '糖' }, { w: '소금', t: '盐' }, { w: '메뉴', t: '菜单' }, { w: '계산서', t: '账单' },
+                  { w: '포크', t: '叉子' }, { w: '칼', t: '刀' }, { w: '숟가락', t: '勺子' }, { w: '접시', t: '盘子' },
+                  { w: '사과', t: '苹果' }, { w: '바나나', t: '香蕉' }, { w: '케이크', t: '蛋糕' }, { w: '닭고기', t: '鸡肉' }, { w: '면', t: '面条' },
+                  { w: '수프', t: '汤' }, { w: '주스', t: '果汁' }, { w: '맥주', t: '啤酒' }, { w: '와인', t: '葡萄酒' }, { w: '치즈', t: '奶酪' },
+                  { w: '피자', t: '披萨' }, { w: '샌드위치', t: '三明治' }, { w: '초콜릿', t: '巧克力' }, { w: '아이스크림', t: '冰淇淋' }]
+              }]
+            },
+            {
+              id: 'transport', name: '도시와 교통 交通', subgroups: [{
+                label: null, items: [
+                  { w: '공항', t: '机场' }, { w: '역', t: '车站' }, { w: '호텔', t: '酒店' }, { w: '버스', t: '巴士' }, { w: '택시', t: '出租车' },
+                  { w: '기차', t: '火车' }, { w: '왼쪽', t: '左' }, { w: '오른쪽', t: '右' }, { w: '거리', t: '街道' }, { w: '지도', t: '地图' },
+                  { w: '표', t: '票' }, { w: '여권', t: '护照' }, { w: '은행', t: '银行' }, { w: '병원', t: '医院' }, { w: '학교', t: '学校' }]
+              }]
+            },
+            { id: 'jobs', name: '직업 职业', subgroups: [{ label: null, items: [{ w: '경찰', t: '警察' }, { w: '노동자', t: '工人' }, { w: '운전사', t: '司机' }, { w: '사장', t: '老板' }, { w: '직원', t: '员工' }, { w: '농부', t: '农夫' }, { w: '요리사', t: '厨师' }, { w: '예술가', t: '艺术家' }, { w: '가수', t: '歌手' }, { w: '배우', t: '演员' }, { w: '작가', t: '作家' }, { w: '간호사', t: '护士' }, { w: '매니저', t: '经理' }, { w: '조종사', t: '飞行员' }, { w: '엔지니어', t: '工程师' }, { w: '사진작가', t: '摄影师' }] }] },
+            {
+              id: 'hobbies', name: '취미 爱好', subgroups: [{
+                label: null, items: [
+                  { w: '음악', t: '音乐' }, { w: '영화', t: '电影' }, { w: '프로그래밍', t: '编程' }, { w: '독서', t: '阅读' }, { w: '사진', t: '摄影' },
+                  { w: '축구', t: '足球' }, { w: '농구', t: '篮球' }, { w: '테니스', t: '网球' }, { w: '수영', t: '游泳' }, { w: '달리기', t: '跑步' },
+                  { w: '등산', t: '徒步' }, { w: '요가', t: '瑜伽' }, { w: '춤', t: '跳舞' }, { w: '그림', t: '画画' }, { w: '요리', t: '烹饪' },
+                  { w: '여행', t: '旅行' }, { w: '게임', t: '游戏' }, { w: '노래', t: '唱歌' }]
+              }]
+            },
+            { id: 'nature', name: '자연 自然', subgroups: [{ label: null, items: [{ w: '개', t: '狗' }, { w: '고양이', t: '猫' }, { w: '새', t: '鸟' }, { w: '물고기', t: '鱼' }, { w: '말', t: '马' }, { w: '나무', t: '树' }, { w: '꽃', t: '花' }, { w: '풀', t: '草' }, { w: '산', t: '山' }, { w: '강', t: '河' }, { w: '바다', t: '海' }, { w: '하늘', t: '天空' }, { w: '태양', t: '太阳' }, { w: '달', t: '月亮' }, { w: '별', t: '星星' }] }] },
+            {
+              id: 'colors', name: '색깔 颜色', subgroups: [{
+                label: null, items: [
+                  { w: '빨간색', t: '红' }, { w: '주황색', t: '橙' }, { w: '노란색', t: '黄' }, { w: '초록색', t: '绿' }, { w: '파란색', t: '蓝' },
+                  { w: '보라색', t: '紫' }, { w: '분홍색', t: '粉' }, { w: '검은색', t: '黑' }, { w: '흰색', t: '白' }, { w: '회색', t: '灰' },
+                  { w: '갈색', t: '棕' }, { w: '금색', t: '金' }]
+              }]
+            },
+            {
+              id: 'directions', name: '방향 方位', subgroups: [{
+                label: null, items: [
+                  { w: '이것', t: '这个' }, { w: '그것', t: '那个' }, { w: '여기', t: '这里' }, { w: '거기', t: '那里' },
+                  { w: '앞', t: '前面' }, { w: '뒤', t: '后面' }, { w: '왼쪽', t: '左边' }, { w: '오른쪽', t: '右边' },
+                  { w: '위', t: '上面' }, { w: '아래', t: '下面' }, { w: '안', t: '里面' }, { w: '밖', t: '外面' },
+                  { w: '가까이', t: '近' }, { w: '멀리', t: '远' }, { w: '사이', t: '之间' }, { w: '옆', t: '旁边' },
+                  { w: '위에', t: '上方' }, { w: '아래에', t: '下方' }, { w: '맞은편', t: '对面' }, { w: '주위', t: '周围' }]
+              }]
+            },
+            {
+              id: 'weather', name: '날씨 天气', subgroups: [{
+                label: null, items: [
+                  { w: '맑다', t: '晴天' }, { w: '흐리다', t: '阴天' }, { w: '비가 오다', t: '下雨' }, { w: '눈이 오다', t: '下雪' }, { w: '바람이 불다', t: '刮风' },
+                  { w: '폭풍', t: '暴风雨' }, { w: '안개', t: '雾' }, { w: '천둥', t: '雷' }, { w: '번개', t: '闪电' }, { w: '무지개', t: '彩虹' },
+                  { w: '덥다', t: '热' }, { w: '춥다', t: '冷' }, { w: '따뜻하다', t: '暖和' }, { w: '시원하다', t: '凉爽' }, { w: '습하다', t: '潮湿' },
+                  { w: '건조하다', t: '干燥' }, { w: '서리', t: '霜' }, { w: '우박', t: '冰雹' }, { w: '산들바람', t: '微风' }, { w: '기온', t: '温度' },
+                  { w: '우산', t: '雨伞' }, { w: '일기예보', t: '天气预报' }, { w: '햇빛', t: '阳光' }, { w: '구름', t: '云' }]
+              }]
+            },
+            {
+              id: 'cosmetics', name: '개인 위생 个人洗护', subgroups: [{
+                label: null, items: [
+                  { w: '샴푸', t: '洗发水' }, { w: '린스', t: '护发素' }, { w: '비누', t: '肥皂' }, { w: '칫솔', t: '牙刷' }, { w: '치약', t: '牙膏' },
+                  { w: '수건', t: '毛巾' }, { w: '빗', t: '梳子' }, { w: '면도기', t: '剃须刀' }, { w: '로션', t: '乳液' }, { w: '선크림', t: '防晒霜' },
+                  { w: '립스틱', t: '口红' }, { w: '마스카라', t: '睫毛膏' }, { w: '향수', t: '香水' }, { w: '파운데이션', t: '粉底液' }, { w: '매니큐어', t: '指甲油' },
+                  { w: '보습크림', t: '保湿霜' }, { w: '클렌저', t: '洗面奶' }, { w: '데오도란트', t: '除臭剂' }, { w: '티슈', t: '纸巾' }, { w: '화장솜', t: '化妆棉' },
+                  { w: '거울', t: '镜子' }, { w: '샤워젤', t: '沐浴露' }, { w: '바디워시', t: '沐浴液' }, { w: '핸드크림', t: '护手霜' }]
+              }]
+            },
+            {
+              id: 'countries', name: '국가 国家', subgroups: [{
+                label: null, items: [
+                  { w: '중국', t: '中国' }, { w: '미국', t: '美国' }, { w: '영국', t: '英国' }, { w: '일본', t: '日本' }, { w: '한국', t: '韩国' },
+                  { w: '프랑스', t: '法国' }, { w: '독일', t: '德国' }, { w: '이탈리아', t: '意大利' }, { w: '스페인', t: '西班牙' }, { w: '러시아', t: '俄罗斯' },
+                  { w: '캐나다', t: '加拿大' }, { w: '호주', t: '澳大利亚' }, { w: '브라질', t: '巴西' }, { w: '인도', t: '印度' }, { w: '멕시코', t: '墨西哥' },
+                  { w: '태국', t: '泰国' }, { w: '베트남', t: '越南' }, { w: '싱가포르', t: '新加坡' }, { w: '말레이시아', t: '马来西亚' }, { w: '인도네시아', t: '印度尼西亚' },
+                  { w: '이집트', t: '埃及' }, { w: '터키', t: '土耳其' }, { w: '스위스', t: '瑞士' }, { w: '네덜란드', t: '荷兰' }]
+              }]
+            }
+          ]
+        },
+        grammar: {
+          title: '문장과 문법 · 句式语法', subtitle: '체계적 정리 · 系统化呈现',
+          sentenceGroups: [
+            {
+              cat: '打招呼与问候', desc: '인사말', sentences: [
+                { main: '안녕하세요!', sub: '你好！' },
+                { main: '좋은 아침이에요.', sub: '早上好。' },
+                { main: '만나서 반가워요.', sub: '很高兴认识你。' },
+                { main: '잘 지냈어요?', sub: '过得好吗？' },
+                { main: '안녕히 주무세요.', sub: '晚安。' }
+              ]
+            },
+            {
+              cat: '自我介绍', desc: '자기소개', sentences: [
+                { main: '제 이름은 민수입니다.', sub: '我叫民秀。' },
+                { main: '저는 25살입니다.', sub: '我25岁。' },
+                { main: '저는 중국에서 왔어요.', sub: '我从中国来。' },
+                { main: '저는 학생이에요.', sub: '我是学生。' },
+                { main: '서울에 살고 있어요.', sub: '我住在首尔。' },
+                { main: '만나서 반갑습니다.', sub: '很高兴认识你。' }
+              ]
+            },
+            {
+              cat: '兴趣爱好', desc: '취미', sentences: [
+                { main: '저는 책 읽는 것을 좋아해요.', sub: '我喜欢看书。' },
+                { main: '음악 듣는 것을 즐겨요.', sub: '我喜欢听音乐。' },
+                { main: '요리하는 것을 좋아해요.', sub: '我喜欢做饭。' },
+                { main: '제 취미는 축구예요.', sub: '我的爱好是踢足球。' },
+                { main: '주말에 보통 영화를 봐요.', sub: '周末通常看电影。' },
+                { main: '언어 배우는 것에 관심이 있어요.', sub: '我对学语言感兴趣。' }
+              ]
+            },
+            {
+              cat: '日常生活', desc: '일상생활', sentences: [
+                { main: '매일 아침 7시에 일어나요.', sub: '每天早上7点起床。' },
+                { main: '집에서 아침을 먹어요.', sub: '在家吃早餐。' },
+                { main: '버스로 출근해요.', sub: '坐公交上班。' },
+                { main: '저녁 6시에 퇴근해요.', sub: '晚上6点下班。' },
+                { main: '보통 11시에 자요.', sub: '通常11点睡觉。' },
+                { main: '일주일에 세 번 운동해요.', sub: '一周运动三次。' }
+              ]
+            },
+            {
+              cat: '餐厅点餐', desc: '식당에서', sentences: [
+                { main: '메뉴 좀 보여주세요.', sub: '请给我看菜单。' },
+                { main: '커피 한 잔 주세요.', sub: '请给我一杯咖啡。' },
+                { main: '이거 얼마예요?', sub: '这个多少钱？' },
+                { main: '계산서 주세요.', sub: '请买单。' },
+                { main: '정말 맛있어요!', sub: '真好吃！' },
+                { main: '채식 메뉴 있어요?', sub: '有素食菜单吗？' }
+              ]
+            },
+            {
+              cat: '问路与交通', desc: '길 묻기', sentences: [
+                { main: '실례합니다, 역이 어디예요?', sub: '打扰，车站在哪？' },
+                { main: '공항에 어떻게 가요?', sub: '怎么去机场？' },
+                { main: '모퉁이에서 왼쪽으로 가세요.', sub: '在拐角处左转。' },
+                { main: '두 블록 직진하세요.', sub: '直走两个街区。' },
+                { main: '여기서 멀어요?', sub: '离这里远吗？' },
+                { main: '택시를 타고 싶어요.', sub: '我想打出租车。' }
+              ]
+            },
+            {
+              cat: '购物', desc: '쇼핑', sentences: [
+                { main: '이거 얼마예요?', sub: '这个多少钱？' },
+                { main: '입어봐도 돼요?', sub: '可以试穿吗？' },
+                { main: '더 작은 사이즈 있어요?', sub: '有小一号的吗？' },
+                { main: '이걸로 할게요.', sub: '我要这个。' },
+                { main: '카드로 결제할 수 있어요?', sub: '可以刷卡吗？' },
+                { main: '다른 색상 있어요?', sub: '有其他颜色吗？' }
+              ]
+            },
+            {
+              cat: '表达感受', desc: '감정 표현', sentences: [
+                { main: '오늘 너무 행복해요.', sub: '今天很开心。' },
+                { main: '좀 피곤해요.', sub: '有点累。' },
+                { main: '좋은 생각이에요.', sub: '好主意。' },
+                { main: '정말 죄송합니다.', sub: '非常抱歉。' },
+                { main: '동의합니다.', sub: '我同意。' },
+                { main: '이해가 안 돼요.', sub: '我不明白。' }
+              ]
+            },
+            {
+              cat: '请求帮助', desc: '도움 요청', sentences: [
+                { main: '도와주실 수 있어요?', sub: '能帮我吗？' },
+                { main: '천천히 말해주세요.', sub: '请说慢一点。' },
+                { main: '이 단어가 무슨 뜻이에요?', sub: '这个词什么意思？' },
+                { main: '이것을 한국어로 뭐라고 해요?', sub: '这个韩语怎么说？' },
+                { main: '의사가 필요해요.', sub: '需要看医生。' },
+                { main: '지도에서 보여주세요.', sub: '请在地图上指给我看。' }
+              ]
+            }
+          ],
+          tables: [
+            {
+              name: '조사 · Particles 助词表',
+              headers: ['功能', '元音后', '辅音后', '例子'],
+              rows: [['主语', '가', '이', '나가, 학생이'], ['话题', '는', '은', '나는, 선생님은'], ['宾语', '를', '을', '책을, 커피를'], ['位置', '에서', '에서', '학교에서'], ['方向', '에', '에', '집에'], ['的', '의', '의', '나의']]
+            },
+            {
+              name: '어체 · Speech Levels 语体切换',
+              headers: ['动词', '格式体', '非格式体', '半语'],
+              rows: [['가다(去)', '갑니다', '가요', '가'], ['먹다(吃)', '먹습니다', '먹어요', '먹어'], ['하다(做)', '합니다', '해요', '해'], ['있다(有)', '있습니다', '있어요', '있어'], ['이다(是)', '입니다', '이에요/예요', '이야/야']]
+            }
+          ]
+        },
+        ttsLang: 'ko-KR'
+      },
+      ja: {
+        sounds: {
+          title: '発音基礎 · 发音基石', subtitle: '点击方块即发音', categories: [
+            {
+              name: '清音 · 五十音', items: [
+                { text: 'あ', sub: 'a', speak: 'あ' }, { text: 'い', sub: 'i', speak: 'い' }, { text: 'う', sub: 'u', speak: 'う' }, { text: 'え', sub: 'e', speak: 'え' }, { text: 'お', sub: 'o', speak: 'お' },
+                { text: 'か', sub: 'ka', speak: 'か' }, { text: 'き', sub: 'ki', speak: 'き' }, { text: 'く', sub: 'ku', speak: 'く' }, { text: 'け', sub: 'ke', speak: 'け' }, { text: 'こ', sub: 'ko', speak: 'こ' },
+                { text: 'さ', sub: 'sa', speak: 'さ' }, { text: 'し', sub: 'shi', speak: 'し' }, { text: 'す', sub: 'su', speak: 'す' }, { text: 'せ', sub: 'se', speak: 'せ' }, { text: 'そ', sub: 'so', speak: 'そ' },
+                { text: 'た', sub: 'ta', speak: 'た' }, { text: 'ち', sub: 'chi', speak: 'ち' }, { text: 'つ', sub: 'tsu', speak: 'つ' }, { text: 'て', sub: 'te', speak: 'て' }, { text: 'と', sub: 'to', speak: 'と' },
+                { text: 'な', sub: 'na', speak: 'な' }, { text: 'に', sub: 'ni', speak: 'に' }, { text: 'ぬ', sub: 'nu', speak: 'ぬ' }, { text: 'ね', sub: 'ne', speak: 'ね' }, { text: 'の', sub: 'no', speak: 'の' },
+                { text: 'は', sub: 'ha', speak: 'は' }, { text: 'ひ', sub: 'hi', speak: 'ひ' }, { text: 'ふ', sub: 'fu', speak: 'ふ' }, { text: 'へ', sub: 'he', speak: 'へ' }, { text: 'ほ', sub: 'ho', speak: 'ほ' },
+                { text: 'ま', sub: 'ma', speak: 'ま' }, { text: 'み', sub: 'mi', speak: 'み' }, { text: 'む', sub: 'mu', speak: 'む' }, { text: 'め', sub: 'me', speak: 'め' }, { text: 'も', sub: 'mo', speak: 'も' },
+                { text: 'や', sub: 'ya', speak: 'や' }, { text: 'ゆ', sub: 'yu', speak: 'ゆ' }, { text: 'よ', sub: 'yo', speak: 'よ' },
+                { text: 'ら', sub: 'ra', speak: 'ら' }, { text: 'り', sub: 'ri', speak: 'り' }, { text: 'る', sub: 'ru', speak: 'る' }, { text: 'れ', sub: 're', speak: 'れ' }, { text: 'ろ', sub: 'ro', speak: 'ろ' },
+                { text: 'わ', sub: 'wa', speak: 'わ' }, { text: 'を', sub: 'wo', speak: 'を' }, { text: 'ん', sub: 'n', speak: 'ん' }]
+            },
+            {
+              name: '濁音 / 半濁音', items: [
+                { text: 'が', sub: 'ga', speak: 'が' }, { text: 'ぎ', sub: 'gi', speak: 'ぎ' }, { text: 'ぐ', sub: 'gu', speak: 'ぐ' }, { text: 'げ', sub: 'ge', speak: 'げ' }, { text: 'ご', sub: 'go', speak: 'ご' },
+                { text: 'ざ', sub: 'za', speak: 'ざ' }, { text: 'じ', sub: 'ji', speak: 'じ' }, { text: 'ず', sub: 'zu', speak: 'ず' }, { text: 'ぜ', sub: 'ze', speak: 'ぜ' }, { text: 'ぞ', sub: 'zo', speak: 'ぞ' },
+                { text: 'だ', sub: 'da', speak: 'だ' }, { text: 'ぢ', sub: 'ji', speak: 'ぢ' }, { text: 'づ', sub: 'zu', speak: 'づ' }, { text: 'で', sub: 'de', speak: 'で' }, { text: 'ど', sub: 'do', speak: 'ど' },
+                { text: 'ば', sub: 'ba', speak: 'ば' }, { text: 'び', sub: 'bi', speak: 'び' }, { text: 'ぶ', sub: 'bu', speak: 'ぶ' }, { text: 'べ', sub: 'be', speak: 'べ' }, { text: 'ぼ', sub: 'bo', speak: 'ぼ' },
+                { text: 'ぱ', sub: 'pa', speak: 'ぱ' }, { text: 'ぴ', sub: 'pi', speak: 'ぴ' }, { text: 'ぷ', sub: 'pu', speak: 'ぷ' }, { text: 'ぺ', sub: 'pe', speak: 'ぺ' }, { text: 'ぽ', sub: 'po', speak: 'ぽ' }]
+            },
+            {
+              name: '片假名', items: [
+                { text: 'ア', sub: 'a', speak: 'ア' }, { text: 'イ', sub: 'i', speak: 'イ' }, { text: 'ウ', sub: 'u', speak: 'ウ' }, { text: 'エ', sub: 'e', speak: 'エ' }, { text: 'オ', sub: 'o', speak: 'オ' },
+                { text: 'カ', sub: 'ka', speak: 'カ' }, { text: 'キ', sub: 'ki', speak: 'キ' }, { text: 'ク', sub: 'ku', speak: 'ク' }, { text: 'ケ', sub: 'ke', speak: 'ケ' }, { text: 'コ', sub: 'ko', speak: 'コ' },
+                { text: 'サ', sub: 'sa', speak: 'サ' }, { text: 'シ', sub: 'shi', speak: 'シ' }, { text: 'ス', sub: 'su', speak: 'ス' }, { text: 'セ', sub: 'se', speak: 'セ' }, { text: 'ソ', sub: 'so', speak: 'ソ' },
+                { text: 'タ', sub: 'ta', speak: 'タ' }, { text: 'チ', sub: 'chi', speak: 'チ' }, { text: 'ツ', sub: 'tsu', speak: 'ツ' }, { text: 'テ', sub: 'te', speak: 'テ' }, { text: 'ト', sub: 'to', speak: 'ト' },
+                { text: 'ナ', sub: 'na', speak: 'ナ' }, { text: 'ニ', sub: 'ni', speak: 'ニ' }, { text: 'ヌ', sub: 'nu', speak: 'ヌ' }, { text: 'ネ', sub: 'ne', speak: 'ネ' }, { text: 'ノ', sub: 'no', speak: 'ノ' },
+                { text: 'ハ', sub: 'ha', speak: 'ハ' }, { text: 'ヒ', sub: 'hi', speak: 'ヒ' }, { text: 'フ', sub: 'fu', speak: 'フ' }, { text: 'ヘ', sub: 'he', speak: 'ヘ' }, { text: 'ホ', sub: 'ho', speak: 'ホ' },
+                { text: 'マ', sub: 'ma', speak: 'マ' }, { text: 'ミ', sub: 'mi', speak: 'ミ' }, { text: 'ム', sub: 'mu', speak: 'ム' }, { text: 'メ', sub: 'me', speak: 'メ' }, { text: 'モ', sub: 'mo', speak: 'モ' },
+                { text: 'ヤ', sub: 'ya', speak: 'ヤ' }, { text: 'ユ', sub: 'yu', speak: 'ユ' }, { text: 'ヨ', sub: 'yo', speak: 'ヨ' },
+                { text: 'ラ', sub: 'ra', speak: 'ラ' }, { text: 'リ', sub: 'ri', speak: 'リ' }, { text: 'ル', sub: 'ru', speak: 'ル' }, { text: 'レ', sub: 're', speak: 'レ' }, { text: 'ロ', sub: 'ro', speak: 'ロ' },
+                { text: 'ワ', sub: 'wa', speak: 'ワ' }, { text: 'ヲ', sub: 'wo', speak: 'ヲ' }, { text: 'ン', sub: 'n', speak: 'ン' }]
+            },
+            {
+              name: '常用汉字', items: [
+                { text: '日', sub: 'nichi / hi', speak: '日' }, { text: '月', sub: 'getsu / tsuki', speak: '月' }, { text: '火', sub: 'ka / hi', speak: '火' }, { text: '水', sub: 'sui / mizu', speak: '水' }, { text: '木', sub: 'moku / ki', speak: '木' },
+                { text: '金', sub: 'kin / kane', speak: '金' }, { text: '土', sub: 'do / tsuchi', speak: '土' }, { text: '山', sub: 'san / yama', speak: '山' }, { text: '川', sub: 'sen / kawa', speak: '川' }, { text: '海', sub: 'kai / umi', speak: '海' },
+                { text: '人', sub: 'jin / hito', speak: '人' }, { text: '男', sub: 'dan / otoko', speak: '男' }, { text: '女', sub: 'jo / onna', speak: '女' }, { text: '子', sub: 'shi / ko', speak: '子' }, { text: '父', sub: 'fu / chichi', speak: '父' },
+                { text: '母', sub: 'bo / haha', speak: '母' }, { text: '兄', sub: 'kyou / ani', speak: '兄' }, { text: '弟', sub: 'tei / otouto', speak: '弟' }, { text: '姉', sub: 'shi / ane', speak: '姉' }, { text: '妹', sub: 'mai / imouto', speak: '妹' },
+                { text: '上', sub: 'jou / ue', speak: '上' }, { text: '下', sub: 'ka / shita', speak: '下' }, { text: '左', sub: 'sa / hidari', speak: '左' }, { text: '右', sub: 'yu / migi', speak: '右' }, { text: '中', sub: 'chuu / naka', speak: '中' },
+                { text: '大', sub: 'dai / oo', speak: '大' }, { text: '小', sub: 'shou / chii', speak: '小' }, { text: '円', sub: 'en / maru', speak: '円' }, { text: '年', sub: 'nen / toshi', speak: '年' }, { text: '学', sub: 'gaku / mana', speak: '学' }]
+            }
+          ]
+        },
+        vocab: {
+          title: '核心500词汇', categories: [
+            {
+              id: 'pronouns', name: '人称', subgroups: [{
+                label: null, items: [
+                  { w: '私', t: '我' }, { w: 'あなた', t: '你' }, { w: '彼', t: '他' }, { w: '彼女', t: '她' }, { w: '私たち', t: '我们' },
+                  { w: '彼ら', t: '他们' }, { w: '誰', t: '谁' }, { w: 'みんな', t: '大家' }]
+              }]
+            },
+            { id: 'numbers', name: '数字', subgroups: [{ label: null, items: jaNumbers() }] },
+            {
+              id: 'time', name: '时间', subgroups: [
+                { label: '星期', items: [{ w: '月曜日', t: '周一' }, { w: '火曜日', t: '周二' }, { w: '水曜日', t: '周三' }, { w: '木曜日', t: '周四' }, { w: '金曜日', t: '周五' }, { w: '土曜日', t: '周六' }, { w: '日曜日', t: '周日' }] },
+                { label: '月份', items: [{ w: '一月', t: '1月' }, { w: '二月', t: '2月' }, { w: '三月', t: '3月' }, { w: '四月', t: '4月' }, { w: '五月', t: '5月' }, { w: '六月', t: '6月' }, { w: '七月', t: '7月' }, { w: '八月', t: '8月' }, { w: '九月', t: '9月' }, { w: '十月', t: '10月' }, { w: '十一月', t: '11月' }, { w: '十二月', t: '12月' }] },
+                { label: '季节', items: [{ w: '春', t: '春' }, { w: '夏', t: '夏' }, { w: '秋', t: '秋' }, { w: '冬', t: '冬' }] },
+                { label: '时间单位', items: [{ w: '時間', t: '小时' }, { w: '分', t: '分钟' }, { w: '秒', t: '秒' }, { w: '今日', t: '今天' }, { w: '明日', t: '明天' }, { w: '昨日', t: '昨天' }, { w: '朝', t: '早上' }, { w: '午後', t: '下午' }, { w: '夜', t: '晚上' }, { w: '今', t: '现在' }, { w: '後で', t: '稍后' }] }
+              ]
+            },
+            {
+              id: 'relations', name: '关系', subgroups: [{
+                label: null, items: [
+                  { w: '父', t: '父亲' }, { w: '母', t: '母亲' }, { w: '兄', t: '哥哥' }, { w: '姉', t: '姐姐' }, { w: '友達', t: '朋友' },
+                  { w: '息子', t: '儿子' }, { w: '娘', t: '女儿' }, { w: '夫', t: '丈夫' }, { w: '妻', t: '妻子' },
+                  { w: '子供', t: '孩子' }, { w: '先生', t: '老师' }, { w: '学生', t: '学生' }]
+              }]
+            },
+            { id: 'body', name: '身体', subgroups: [{ label: null, items: [{ w: '頭', t: '头' }, { w: '目', t: '眼睛' }, { w: '耳', t: '耳朵' }, { w: '口', t: '嘴' }, { w: '鼻', t: '鼻子' }, { w: '顔', t: '脸' }, { w: '手', t: '手' }, { w: '足', t: '脚' }, { w: '体', t: '身体' }, { w: '髪', t: '头发' }] }] },
+            {
+              id: 'verbs', name: '高频动词', subgroups: [{
+                label: null, items: [
+                  { w: 'です', t: '是' }, { w: 'ある', t: '有(物)' }, { w: 'いる', t: '有(人)' }, { w: '行く', t: '去' }, { w: '来る', t: '来' }, { w: '食べる', t: '吃' },
+                  { w: '飲む', t: '喝' }, { w: '寝る', t: '睡' }, { w: '欲しい', t: '想要' }, { w: '好き', t: '喜欢' }, { w: '必要', t: '需要' },
+                  { w: 'できる', t: '能' }, { w: '分かる', t: '知道' }, { w: '言う', t: '说' }, { w: '見る', t: '看' }, { w: '聞く', t: '听' },
+                  { w: '書く', t: '写' }, { w: '買う', t: '买' }, { w: '働く', t: '工作' }, { w: '遊ぶ', t: '玩' }, { w: 'あげる', t: '给' },
+                  { w: '作る', t: '做' }, { w: '思う', t: '想' }, { w: '走る', t: '跑' }, { w: '歩く', t: '走' }]
+              }]
+            },
+            {
+              id: 'emotions', name: '情感', subgroups: [{
+                label: null, items: [
+                  { w: '嬉しい', t: '开心' }, { w: '悲しい', t: '伤心' }, { w: '疲れた', t: '累' }, { w: '良い', t: '好' }, { w: '悪い', t: '坏' },
+                  { w: '大きい', t: '大' }, { w: '小さい', t: '小' }, { w: '暑い', t: '热' }, { w: '寒い', t: '冷' },
+                  { w: '新しい', t: '新' }, { w: '古い', t: '旧' }, { w: '美しい', t: '美' },
+                  { w: 'ごめんなさい', t: '对不起' }, { w: 'ありがとう', t: '谢谢' }, { w: 'ください', t: '请' }, { w: 'はい', t: '是' }, { w: 'いいえ', t: '不' }]
+              }]
+            },
+            {
+              id: 'home', name: '居家', subgroups: [{
+                label: null, items: [
+                  { w: '家', t: '房子' }, { w: '部屋', t: '房间' }, { w: '台所', t: '厨房' }, { w: '寝室', t: '卧室' }, { w: 'トイレ', t: '浴室' },
+                  { w: '机', t: '桌子' }, { w: '椅子', t: '椅子' }, { w: 'ベッド', t: '床' }, { w: 'ドア', t: '门' }, { w: '窓', t: '窗户' },
+                  { w: '電気', t: '灯' }, { w: '電話', t: '电话' }, { w: 'パソコン', t: '电脑' }, { w: '鍵', t: '钥匙' }, { w: '時計', t: '钟' }]
+              }]
+            },
+            { id: 'clothes', name: '衣物', subgroups: [{ label: null, items: [{ w: '服', t: '衣服' }, { w: 'シャツ', t: '衬衫' }, { w: 'ズボン', t: '裤子' }, { w: '靴', t: '鞋' }, { w: '帽子', t: '帽子' }, { w: '靴下', t: '袜子' }, { w: '鞄', t: '包' }, { w: '眼鏡', t: '眼镜' }] }] },
+            {
+              id: 'restaurant', name: '餐厅', subgroups: [{
+                label: null, items: [
+                  { w: '水', t: '水' }, { w: 'ご飯', t: '米饭' }, { w: 'パン', t: '面包' }, { w: '肉', t: '肉' }, { w: '魚', t: '鱼' },
+                  { w: '卵', t: '鸡蛋' }, { w: '果物', t: '水果' }, { w: 'コーヒー', t: '咖啡' }, { w: 'お茶', t: '茶' }, { w: '牛乳', t: '牛奶' },
+                  { w: '砂糖', t: '糖' }, { w: '塩', t: '盐' }, { w: 'メニュー', t: '菜单' }, { w: 'お会計', t: '账单' },
+                  { w: 'フォーク', t: '叉子' }, { w: 'ナイフ', t: '刀' }, { w: 'スプーン', t: '勺子' }, { w: '皿', t: '盘子' }]
+              }]
+            },
+            {
+              id: 'transport', name: '交通', subgroups: [{
+                label: null, items: [
+                  { w: '空港', t: '机场' }, { w: '駅', t: '车站' }, { w: 'ホテル', t: '酒店' }, { w: 'バス', t: '巴士' }, { w: 'タクシー', t: '出租车' },
+                  { w: '電車', t: '火车' }, { w: '左', t: '左' }, { w: '右', t: '右' }, { w: '道', t: '街道' }, { w: '地図', t: '地图' },
+                  { w: '切符', t: '票' }, { w: 'パスポート', t: '护照' }, { w: '銀行', t: '银行' }, { w: '病院', t: '医院' }, { w: '学校', t: '学校' }]
+              }]
+            },
+            {
+              id: 'colors', name: '颜色', subgroups: [{
+                label: null, items: [
+                  { w: '赤', t: '红' }, { w: 'オレンジ', t: '橙' }, { w: '黄色', t: '黄' }, { w: '緑', t: '绿' }, { w: '青', t: '蓝' },
+                  { w: '紫', t: '紫' }, { w: 'ピンク', t: '粉' }, { w: '黒', t: '黑' }, { w: '白', t: '白' }, { w: 'グレー', t: '灰' },
+                  { w: '茶色', t: '棕' }, { w: '金', t: '金' }]
+              }]
+            },
+            {
+              id: 'weather', name: '天气', subgroups: [{
+                label: null, items: [
+                  { w: '晴れ', t: '晴天' }, { w: '曇り', t: '阴天' }, { w: '雨', t: '下雨' }, { w: '雪', t: '下雪' }, { w: '風', t: '风' },
+                  { w: '嵐', t: '暴风雨' }, { w: '霧', t: '雾' }, { w: '雷', t: '雷' }, { w: '虹', t: '彩虹' }]
+              }]
+            }
+          ]
+        },
+        grammar: {
+          title: '句式语法', subtitle: '系统化呈现',
+          sentenceGroups: [
+            {
+              cat: '打招呼与问候', desc: '挨拶', sentences: [
+                { main: 'こんにちは！', sub: '你好！' },
+                { main: 'おはようございます。', sub: '早上好。' },
+                { main: 'はじめまして。', sub: '很高兴认识你。' },
+                { main: 'お元気ですか？', sub: '过得好吗？' },
+                { main: 'おやすみなさい。', sub: '晚安。' }
+              ]
+            },
+            {
+              cat: '自我介绍', desc: '自己紹介', sentences: [
+                { main: '私の名前は田中です。', sub: '我叫田中。' },
+                { main: '私は25歳です。', sub: '我25岁。' },
+                { main: '中国から来ました。', sub: '我从中国来。' },
+                { main: '私は学生です。', sub: '我是学生。' },
+                { main: '東京に住んでいます。', sub: '我住在东京。' },
+                { main: 'よろしくお願いします。', sub: '请多关照。' }
+              ]
+            },
+            {
+              cat: '兴趣爱好', desc: '趣味', sentences: [
+                { main: '本を読むのが好きです。', sub: '我喜欢看书。' },
+                { main: '音楽を聴くのが楽しいです。', sub: '我喜欢听音乐。' },
+                { main: '料理をするのが好きです。', sub: '我喜欢做饭。' },
+                { main: '趣味はサッカーです。', sub: '我的爱好是踢足球。' },
+                { main: '週末はよく映画を見ます。', sub: '周末通常看电影。' },
+                { main: '語学に興味があります。', sub: '我对学语言感兴趣。' }
+              ]
+            },
+            {
+              cat: '日常生活', desc: '日常生活', sentences: [
+                { main: '毎朝7時に起きます。', sub: '每天早上7点起床。' },
+                { main: '家で朝ごはんを食べます。', sub: '在家吃早餐。' },
+                { main: 'バスで出勤します。', sub: '坐公交上班。' },
+                { main: '夕方6時に退社します。', sub: '晚上6点下班。' },
+                { main: 'たいてい11時に寝ます。', sub: '通常11点睡觉。' },
+                { main: '週に3回運動します。', sub: '一周运动三次。' }
+              ]
+            },
+            {
+              cat: '餐厅点餐', desc: 'レストランで', sentences: [
+                { main: 'メニューを見せてください。', sub: '请给我看菜单。' },
+                { main: 'コーヒーを1杯お願いします。', sub: '请给我一杯咖啡。' },
+                { main: 'これはいくらですか？', sub: '这个多少钱？' },
+                { main: 'お会計をお願いします。', sub: '请买单。' },
+                { main: 'とても美味しいです！', sub: '真好吃！' },
+                { main: 'ベジタリアンのメニューはありますか？', sub: '有素食菜单吗？' }
+              ]
+            },
+            {
+              cat: '问路与交通', desc: '道を尋ねる', sentences: [
+                { main: 'すみません、駅はどこですか？', sub: '打扰，车站在哪？' },
+                { main: '空港にはどうやって行きますか？', sub: '怎么去机场？' },
+                { main: '角を左に曲がってください。', sub: '在拐角处左转。' },
+                { main: '2ブロックまっすぐ行ってください。', sub: '直走两个街区。' },
+                { main: 'ここから遠いですか？', sub: '离这里远吗？' },
+                { main: 'タクシーに乗りたいです。', sub: '我想打出租车。' }
+              ]
+            },
+            {
+              cat: '购物', desc: '買い物', sentences: [
+                { main: 'これはいくらですか？', sub: '这个多少钱？' },
+                { main: '試着してもいいですか？', sub: '可以试穿吗？' },
+                { main: 'もっと小さいサイズはありますか？', sub: '有小一号的吗？' },
+                { main: 'これにします。', sub: '我要这个。' },
+                { main: 'クレジットカードは使えますか？', sub: '可以刷卡吗？' },
+                { main: '他の色はありますか？', sub: '有其他颜色吗？' }
+              ]
+            },
+            {
+              cat: '表达感受', desc: '感情表現', sentences: [
+                { main: '今日はとても幸せです。', sub: '今天很开心。' },
+                { main: '少し疲れました。', sub: '有点累。' },
+                { main: 'いいアイデアですね。', sub: '好主意。' },
+                { main: '本当に申し訳ありません。', sub: '非常抱歉。' },
+                { main: '賛成です。', sub: '我同意。' },
+                { main: 'わかりません。', sub: '我不明白。' }
+              ]
+            },
+            {
+              cat: '请求帮助', desc: '助けを求める', sentences: [
+                { main: '手伝ってくれませんか？', sub: '能帮我吗？' },
+                { main: 'ゆっくり話してください。', sub: '请说慢一点。' },
+                { main: 'この言葉はどういう意味ですか？', sub: '这个词什么意思？' },
+                { main: 'これは日本語で何と言いますか？', sub: '这个日语怎么说？' },
+                { main: '医者が必要です。', sub: '需要看医生。' },
+                { main: '地図で教えてください。', sub: '请在地图上指给我看。' }
+              ]
+            }
+          ],
+          tables: [
+            {
+              name: '助词表',
+              headers: ['功能', '助词', '例子', '翻译'],
+              rows: [['主语', 'が', '私が学生です', '我是学生'], ['话题', 'は', '私は学生です', '我(的话)是学生'], ['宾语', 'を', '本を読む', '看书'], ['位置', 'で', '家で食べる', '在家吃'], ['方向', 'へ/に', '日本へ行く', '去日本'], ['的', 'の', '私の本', '我的书']]
+            },
+            {
+              name: '动词变形',
+              headers: ['动词', '基本形', '敬体(ます形)', '否定形(ない形)'],
+              rows: [['行く(去)', '行く', '行きます', '行かない'], ['食べる(吃)', '食べる', '食べます', '食べない'], ['する(做)', 'する', 'します', 'しない'], ['来る(来)', '来る', '来ます', '来ない']]
+            }
+          ]
+        },
+        ttsLang: 'ja-JP'
+      },
+      yue: {
+        sounds: {
+          title: '發音基石 · 粵語拼音', subtitle: '點擊方塊即可聽到發音', categories: [
+            {
+              name: '聲母 Initials', items: [
+                { text: 'b', sub: '巴', speak: '巴' }, { text: 'p', sub: '怕', speak: '怕' }, { text: 'm', sub: '媽', speak: '媽' }, { text: 'f', sub: '花', speak: '花' },
+                { text: 'd', sub: '打', speak: '打' }, { text: 't', sub: '他', speak: '他' }, { text: 'n', sub: '那', speak: '那' }, { text: 'l', sub: '啦', speak: '啦' },
+                { text: 'g', sub: '家', speak: '家' }, { text: 'k', sub: '卡', speak: '卡' }, { text: 'ng', sub: '牙', speak: '牙' }, { text: 'h', sub: '蝦', speak: '蝦' },
+                { text: 'gw', sub: '瓜', speak: '瓜' }, { text: 'kw', sub: '誇', speak: '誇' }, { text: 'w', sub: '蛙', speak: '蛙' },
+                { text: 'z', sub: '渣', speak: '渣' }, { text: 'c', sub: '叉', speak: '叉' }, { text: 's', sub: '沙', speak: '沙' }, { text: 'j', sub: '也', speak: '也' }]
+            },
+            {
+              name: '韻母 Finals', items: [
+                { text: 'aa', sub: '沙', speak: '沙' }, { text: 'aai', sub: '嗌', speak: '嗌' }, { text: 'aau', sub: '交', speak: '交' }, { text: 'aam', sub: '三', speak: '三' },
+                { text: 'aan', sub: '山', speak: '山' }, { text: 'aang', sub: '坑', speak: '坑' }, { text: 'ai', sub: '四', speak: '四' }, { text: 'au', sub: '收', speak: '收' },
+                { text: 'am', sub: '心', speak: '心' }, { text: 'an', sub: '新', speak: '新' }, { text: 'ang', sub: '生', speak: '生' },
+                { text: 'e', sub: '些', speak: '些' }, { text: 'ei', sub: '非', speak: '非' }, { text: 'eng', sub: '鄭', speak: '鄭' },
+                { text: 'i', sub: '衣', speak: '衣' }, { text: 'iu', sub: '消', speak: '消' }, { text: 'im', sub: '點', speak: '點' }, { text: 'in', sub: '先', speak: '先' }, { text: 'ing', sub: '星', speak: '星' },
+                { text: 'o', sub: '波', speak: '波' }, { text: 'oi', sub: '開', speak: '開' }, { text: 'ou', sub: '好', speak: '好' }, { text: 'on', sub: '安', speak: '安' }, { text: 'ong', sub: '康', speak: '康' },
+                { text: 'u', sub: '夫', speak: '夫' }, { text: 'ui', sub: '灰', speak: '灰' }, { text: 'un', sub: '官', speak: '官' }, { text: 'ung', sub: '公', speak: '公' },
+                { text: 'eoi', sub: '去', speak: '去' }, { text: 'eon', sub: '信', speak: '信' }, { text: 'yu', sub: '書', speak: '書' }, { text: 'yun', sub: '算', speak: '算' }]
+            },
+            {
+              name: '六個聲調 6 Tones', items: [
+                { text: '1 陰平', sub: '詩 sī', speak: '詩' }, { text: '2 陰上', sub: '史 sí', speak: '史' }, { text: '3 陰去', sub: '試 si', speak: '試' },
+                { text: '4 陽平', sub: '時 sìh', speak: '時' }, { text: '5 陽上', sub: '市 síh', speak: '市' }, { text: '6 陽去', sub: '事 sih', speak: '事' }]
+            }
+          ]
+        },
+        vocab: {
+          title: '核心 500 詞彙 · 粵語常用詞', categories: [
+            {
+              id: 'pronouns', name: '人稱', subgroups: [{
+                label: null, items: [
+                  { w: '我', t: '我' }, { w: '你', t: '你' }, { w: '佢', t: '他/她' }, { w: '我哋', t: '我们' }, { w: '你哋', t: '你们' }, { w: '佢哋', t: '他们' },
+                  { w: '我嘅', t: '我的' }, { w: '你嘅', t: '你的' }, { w: '佢嘅', t: '他的' }]
+              }]
+            },
+            { id: 'numbers', name: '數字', subgroups: [{ label: null, items: yueNumbers() }] },
+            {
+              id: 'time', name: '時間', subgroups: [
+                { label: '星期', items: [{ w: '星期一', t: '周一' }, { w: '星期二', t: '周二' }, { w: '星期三', t: '周三' }, { w: '星期四', t: '周四' }, { w: '星期五', t: '周五' }, { w: '星期六', t: '周六' }, { w: '星期日', t: '周日' }] },
+                { label: '月份', items: [{ w: '一月', t: '1月' }, { w: '二月', t: '2月' }, { w: '三月', t: '3月' }, { w: '四月', t: '4月' }, { w: '五月', t: '5月' }, { w: '六月', t: '6月' }, { w: '七月', t: '7月' }, { w: '八月', t: '8月' }, { w: '九月', t: '9月' }, { w: '十月', t: '10月' }, { w: '十一月', t: '11月' }, { w: '十二月', t: '12月' }] },
+                { label: '季節', items: [{ w: '春天', t: '春' }, { w: '夏天', t: '夏' }, { w: '秋天', t: '秋' }, { w: '冬天', t: '冬' }] },
+                { label: '時間單位', items: [{ w: '鐘頭', t: '小时' }, { w: '分鐘', t: '分钟' }, { w: '秒', t: '秒' }, { w: '今日', t: '今天' }, { w: '聽日', t: '明天' }, { w: '尋日', t: '昨天' }, { w: '朝早', t: '早上' }, { w: '晏晝', t: '下午' }, { w: '夜晚', t: '晚上' }, { w: '而家', t: '现在' }, { w: '遲啲', t: '稍后' }] }
+              ]
+            },
+            {
+              id: 'relations', name: '關係', subgroups: [{
+                label: null, items: [
+                  { w: '老豆', t: '父亲' }, { w: '老母', t: '母亲' }, { w: '阿哥', t: '哥哥' }, { w: '家姐', t: '姐姐' }, { w: '細佬', t: '弟弟' }, { w: '細妹', t: '妹妹' },
+                  { w: '朋友', t: '朋友' }, { w: '仔', t: '儿子' }, { w: '女', t: '女儿' }, { w: '老公', t: '丈夫' }, { w: '老婆', t: '妻子' },
+                  { w: '細路', t: '小孩' }, { w: '老師', t: '老师' }, { w: '學生', t: '学生' }, { w: '同事', t: '同事' }, { w: '阿爺', t: '祖父' }, { w: '阿嫲', t: '祖母' }, { w: '叔叔', t: '叔叔' }, { w: '阿姨', t: '阿姨' }, { w: '姪仔', t: '侄子' }, { w: '姪女', t: '侄女' }, { w: '表兄弟', t: '表兄弟/姐妹' }]
+              }]
+            },
+            { id: 'body', name: '身體', subgroups: [{ label: null, items: [{ w: '頭', t: '头' }, { w: '眼', t: '眼睛' }, { w: '耳仔', t: '耳朵' }, { w: '口', t: '嘴' }, { w: '鼻', t: '鼻子' }, { w: '面', t: '脸' }, { w: '手', t: '手' }, { w: '手臂', t: '手臂' }, { w: '腳', t: '脚' }, { w: '腳板', t: '脚掌' }, { w: '身體', t: '身体' }, { w: '頭髮', t: '头发' }, { w: '醫生', t: '医生' }, { w: '藥', t: '药' }, { w: '痛', t: '痛' }] }] },
+            {
+              id: 'verbs', name: '高頻動詞', subgroups: [{
+                label: null, items: [
+                  { w: '係', t: '是' }, { w: '有', t: '有' }, { w: '去', t: '去' }, { w: '嚟', t: '来' }, { w: '食', t: '吃' },
+                  { w: '飲', t: '喝' }, { w: '瞓', t: '睡' }, { w: '想', t: '想要' }, { w: '鍾意', t: '喜欢' }, { w: '要', t: '需要' },
+                  { w: '得', t: '能够' }, { w: '知', t: '知道' }, { w: '講', t: '说' }, { w: '睇', t: '看' }, { w: '聽', t: '听' },
+                  { w: '寫', t: '写' }, { w: '買', t: '买' }, { w: '做嘢', t: '工作' }, { w: '玩', t: '玩' }, { w: '畀', t: '给' },
+                  { w: '攞', t: '拿' }, { w: '整', t: '做' }, { w: '諗', t: '想' }, { w: '跑', t: '跑' }, { w: '行', t: '走' },
+                  { w: '讀', t: '读' }, { w: '開', t: '开' }, { w: '閂', t: '关' }, { w: '愛', t: '爱' }, { w: '幫', t: '帮助' },
+                  { w: '問', t: '问' }, { w: '答', t: '答' }, { w: '學', t: '学' }, { w: '教', t: '教' }, { w: '等', t: '等' },
+                  { w: '試', t: '试' }, { w: '用', t: '用' }, { w: '搵', t: '找' }, { w: '擺', t: '放' }, { w: '打電話', t: '打电话' }]
+              }]
+            },
+            {
+              id: 'emotions', name: '情感表達', subgroups: [{
+                label: null, items: [
+                  { w: '開心', t: '开心' }, { w: '唔開心', t: '伤心' }, { w: '攰', t: '累' }, { w: '好', t: '好' }, { w: '唔好', t: '坏' },
+                  { w: '大', t: '大' }, { w: '細', t: '小' }, { w: '熱', t: '热' }, { w: '凍', t: '冷' }, { w: '新', t: '新' },
+                  { w: '舊', t: '旧' }, { w: '靚', t: '美丽' }, { w: '對唔住', t: '对不起' }, { w: '唔該', t: '谢谢' },
+                  { w: '請', t: '请' }, { w: '係', t: '是' }, { w: '唔係', t: '不是' }]
+              }]
+            },
+            {
+              id: 'home', name: '屋企', subgroups: [{
+                label: null, items: [
+                  { w: '屋', t: '房子' }, { w: '房', t: '房间' }, { w: '廚房', t: '厨房' }, { w: '睡房', t: '卧室' }, { w: '廁所', t: '浴室' },
+                  { w: '枱', t: '桌子' }, { w: '凳', t: '椅子' }, { w: '床', t: '床' }, { w: '門', t: '门' }, { w: '窗', t: '窗户' },
+                  { w: '燈', t: '灯' }, { w: '電話', t: '电话' }, { w: '電腦', t: '电脑' }, { w: '鎖匙', t: '钥匙' }, { w: '鐘', t: '钟' }]
+              }]
+            },
+            { id: 'clothes', name: '衣著', subgroups: [{ label: null, items: [{ w: '衫', t: '衣服' }, { w: '恤衫', t: '衬衫' }, { w: 'T裇', t: 'T恤' }, { w: '褲', t: '裤子' }, { w: '裙', t: '裙' }, { w: '半截裙', t: '半身裙' }, { w: '褸', t: '夹克/外套' }, { w: '大褸', t: '大衣' }, { w: '鞋', t: '鞋' }, { w: '帽', t: '帽子' }, { w: '襪', t: '袜子' }, { w: '袋', t: '包' }, { w: '眼鏡', t: '眼镜' }, { w: '皮帶', t: '皮带' }, { w: '戒指', t: '戒指' }] }] },
+            {
+              id: 'restaurant', name: '食肆', subgroups: [{
+                label: null, items: [
+                  { w: '水', t: '水' }, { w: '飯', t: '米饭' }, { w: '麵包', t: '面包' }, { w: '肉', t: '肉' }, { w: '魚', t: '鱼' },
+                  { w: '雞蛋', t: '鸡蛋' }, { w: '生果', t: '水果' }, { w: '咖啡', t: '咖啡' }, { w: '茶', t: '茶' }, { w: '奶', t: '牛奶' },
+                  { w: '糖', t: '糖' }, { w: '鹽', t: '盐' }, { w: '餐牌', t: '菜单' }, { w: '埋單', t: '买单' },
+                  { w: '叉', t: '叉子' }, { w: '刀', t: '刀' }, { w: '匙羹', t: '勺子' }, { w: '碟', t: '盘子' },
+                  { w: '蘋果', t: '苹果' }, { w: '香蕉', t: '香蕉' }, { w: '蛋糕', t: '蛋糕' }, { w: '雞肉', t: '鸡肉' }, { w: '麵', t: '面条' },
+                  { w: '湯', t: '汤' }, { w: '果汁', t: '果汁' }, { w: '啤酒', t: '啤酒' }, { w: '紅酒', t: '葡萄酒' }, { w: '芝士', t: '奶酪' },
+                  { w: '薄餅', t: '披萨' }, { w: '三文治', t: '三明治' }, { w: '朱古力', t: '巧克力' }, { w: '雪糕', t: '冰淇淋' }]
+              }]
+            },
+            {
+              id: 'transport', name: '交通出行', subgroups: [{
+                label: null, items: [
+                  { w: '機場', t: '机场' }, { w: '車站', t: '车站' }, { w: '酒店', t: '酒店' }, { w: '巴士', t: '巴士' }, { w: '的士', t: '出租车' },
+                  { w: '火車', t: '火车' }, { w: '左邊', t: '左' }, { w: '右邊', t: '右' }, { w: '街', t: '街道' }, { w: '地圖', t: '地图' },
+                  { w: '飛', t: '票' }, { w: '護照', t: '护照' }, { w: '銀行', t: '银行' }, { w: '醫院', t: '医院' }, { w: '學校', t: '学校' }]
+              }]
+            },
+            { id: 'jobs', name: '職業', subgroups: [{ label: null, items: [{ w: '警察', t: '警察' }, { w: '工人', t: '工人' }, { w: '司機', t: '司机' }, { w: '老闆', t: '老板' }, { w: '員工', t: '员工' }, { w: '農夫', t: '农夫' }, { w: '廚師', t: '厨师' }, { w: '藝術家', t: '艺术家' }, { w: '歌手', t: '歌手' }, { w: '演員', t: '演员' }, { w: '作家', t: '作家' }, { w: '護士', t: '护士' }, { w: '經理', t: '经理' }, { w: '飛機師', t: '飞行员' }, { w: '工程師', t: '工程师' }, { w: '攝影師', t: '摄影师' }] }] },
+            {
+              id: 'hobbies', name: '愛好', subgroups: [{
+                label: null, items: [
+                  { w: '音樂', t: '音乐' }, { w: '電影', t: '电影' }, { w: '編程', t: '编程' }, { w: '閱讀', t: '阅读' }, { w: '攝影', t: '摄影' },
+                  { w: '足球', t: '足球' }, { w: '籃球', t: '篮球' }, { w: '網球', t: '网球' }, { w: '游水', t: '游泳' }, { w: '跑步', t: '跑步' },
+                  { w: '行山', t: '徒步' }, { w: '瑜伽', t: '瑜伽' }, { w: '跳舞', t: '跳舞' }, { w: '畫畫', t: '画画' }, { w: '煮嘢食', t: '烹饪' },
+                  { w: '旅行', t: '旅行' }, { w: '打機', t: '游戏' }, { w: '唱歌', t: '唱歌' }]
+              }]
+            },
+            { id: 'nature', name: '大自然', subgroups: [{ label: null, items: [{ w: '狗', t: '狗' }, { w: '貓', t: '猫' }, { w: '雀仔', t: '鸟' }, { w: '魚', t: '鱼' }, { w: '馬', t: '马' }, { w: '樹', t: '树' }, { w: '花', t: '花' }, { w: '草', t: '草' }, { w: '山', t: '山' }, { w: '河', t: '河' }, { w: '海', t: '海' }, { w: '天', t: '天空' }, { w: '太陽', t: '太阳' }, { w: '月亮', t: '月亮' }, { w: '星', t: '星星' }] }] },
+            {
+              id: 'colors', name: '顏色', subgroups: [{
+                label: null, items: [
+                  { w: '紅色', t: '红' }, { w: '橙色', t: '橙' }, { w: '黃色', t: '黄' }, { w: '綠色', t: '绿' }, { w: '藍色', t: '蓝' },
+                  { w: '紫色', t: '紫' }, { w: '粉紅色', t: '粉' }, { w: '黑色', t: '黑' }, { w: '白色', t: '白' }, { w: '灰色', t: '灰' },
+                  { w: '啡色', t: '棕' }, { w: '金色', t: '金' }]
+              }]
+            },
+            {
+              id: 'directions', name: '方位', subgroups: [{
+                label: null, items: [
+                  { w: '呢個', t: '这个' }, { w: '嗰個', t: '那个' }, { w: '呢度', t: '这里' }, { w: '嗰度', t: '那里' },
+                  { w: '前面', t: '前面' }, { w: '後面', t: '后面' }, { w: '左邊', t: '左边' }, { w: '右邊', t: '右边' },
+                  { w: '上面', t: '上面' }, { w: '下面', t: '下面' }, { w: '入面', t: '里面' }, { w: '外面', t: '外面' },
+                  { w: '近', t: '近' }, { w: '遠', t: '远' }, { w: '中間', t: '之间' }, { w: '隔籬', t: '旁边' },
+                  { w: '上便', t: '上方' }, { w: '下便', t: '下方' }, { w: '對面', t: '对面' }, { w: '周圍', t: '周围' }]
+              }]
+            },
+            {
+              id: 'weather', name: '天氣', subgroups: [{
+                label: null, items: [
+                  { w: '晴天', t: '晴天' }, { w: '陰天', t: '阴天' }, { w: '落雨', t: '下雨' }, { w: '落雪', t: '下雪' }, { w: '打風', t: '刮风' },
+                  { w: '風暴', t: '暴风雨' }, { w: '霧', t: '雾' }, { w: '行雷', t: '打雷' }, { w: '閃電', t: '闪电' }, { w: '彩虹', t: '彩虹' },
+                  { w: '熱', t: '热' }, { w: '凍', t: '冷' }, { w: '暖', t: '暖和' }, { w: '涼', t: '凉爽' }, { w: '潮濕', t: '潮湿' },
+                  { w: '乾燥', t: '干燥' }, { w: '霜', t: '霜' }, { w: '冰雹', t: '冰雹' }, { w: '微風', t: '微风' }, { w: '溫度', t: '温度' },
+                  { w: '遮', t: '雨伞' }, { w: '天氣預報', t: '天气预报' }, { w: '陽光', t: '阳光' }, { w: '雲', t: '云' }]
+              }]
+            },
+            {
+              id: 'cosmetics', name: '個人洗護', subgroups: [{
+                label: null, items: [
+                  { w: '洗頭水', t: '洗发水' }, { w: '護髮素', t: '护发素' }, { w: '番梘', t: '肥皂' }, { w: '牙刷', t: '牙刷' }, { w: '牙膏', t: '牙膏' },
+                  { w: '毛巾', t: '毛巾' }, { w: '梳', t: '梳子' }, { w: '剃鬚刀', t: '剃须刀' }, { w: '潤膚露', t: '乳液' }, { w: '防曬霜', t: '防晒霜' },
+                  { w: '唇膏', t: '口红' }, { w: '睫毛膏', t: '睫毛膏' }, { w: '香水', t: '香水' }, { w: '粉底液', t: '粉底液' }, { w: '指甲油', t: '指甲油' },
+                  { w: '保濕霜', t: '保湿霜' }, { w: '洗面奶', t: '洗面奶' }, { w: '止汗劑', t: '除臭剂' }, { w: '紙巾', t: '纸巾' }, { w: '化妝棉', t: '化妆棉' },
+                  { w: '鏡', t: '镜子' }, { w: '沖涼液', t: '沐浴露' }, { w: '沐浴露', t: '沐浴液' }, { w: '護手霜', t: '护手霜' }]
+              }]
+            },
+            {
+              id: 'countries', name: '國家', subgroups: [{
+                label: null, items: [
+                  { w: '中國', t: '中国' }, { w: '美國', t: '美国' }, { w: '英國', t: '英国' }, { w: '日本', t: '日本' }, { w: '韓國', t: '韩国' },
+                  { w: '法國', t: '法国' }, { w: '德國', t: '德国' }, { w: '意大利', t: '意大利' }, { w: '西班牙', t: '西班牙' }, { w: '俄羅斯', t: '俄罗斯' },
+                  { w: '加拿大', t: '加拿大' }, { w: '澳洲', t: '澳大利亚' }, { w: '巴西', t: '巴西' }, { w: '印度', t: '印度' }, { w: '墨西哥', t: '墨西哥' },
+                  { w: '泰國', t: '泰国' }, { w: '越南', t: '越南' }, { w: '新加坡', t: '新加坡' }, { w: '馬來西亞', t: '马来西亚' }, { w: '印尼', t: '印度尼西亚' },
+                  { w: '埃及', t: '埃及' }, { w: '土耳其', t: '土耳其' }, { w: '瑞士', t: '瑞士' }, { w: '荷蘭', t: '荷兰' }]
+              }]
+            }
+          ]
+        },
+        grammar: {
+          title: '句式學習與語法', subtitle: '粵語日常句式',
+          sentenceGroups: [
+            {
+              cat: '打招呼與問候', desc: 'Greetings', sentences: [
+                { main: '你好！', sub: '你好！' },
+                { main: '早晨！', sub: '早上好！' },
+                { main: '午安！', sub: '午安！' },
+                { main: '晚安！', sub: '晚安！' },
+                { main: '你好嗎？', sub: '你好吗？' },
+                { main: '識到你真係好高興。', sub: '很高兴认识你。' }
+              ]
+            },
+            {
+              cat: '自我介紹', desc: '自我介绍', sentences: [
+                { main: '我叫阿明。', sub: '我叫阿明。' },
+                { main: '我今年廿五歲。', sub: '我今年25岁。' },
+                { main: '我係中國人。', sub: '我是中国人。' },
+                { main: '我係學生。', sub: '我是学生。' },
+                { main: '我住喺廣州。', sub: '我住在广州。' },
+                { main: '好高興認識你。', sub: '很高兴认识你。' }
+              ]
+            },
+            {
+              cat: '興趣愛好', desc: '兴趣爱好', sentences: [
+                { main: '我鍾意睇書。', sub: '我喜欢看书。' },
+                { main: '我鍾意聽歌。', sub: '我喜欢听歌。' },
+                { main: '我鍾意煮嘢食。', sub: '我喜欢做饭。' },
+                { main: '我嘅愛好係打波。', sub: '我的爱好是打球。' },
+                { main: '我禮拜六日通常睇戲。', sub: '我周末通常看电影。' },
+                { main: '我對學語言有興趣。', sub: '我对学语言感兴趣。' }
+              ]
+            },
+            {
+              cat: '日常生活', desc: '日常生活', sentences: [
+                { main: '我每朝七點起身。', sub: '我每天早上7点起床。' },
+                { main: '我喺屋企食早餐。', sub: '我在家吃早餐。' },
+                { main: '我搭巴士返工。', sub: '我坐巴士上班。' },
+                { main: '我六點收工。', sub: '我6点下班。' },
+                { main: '我通常十一點瞓覺。', sub: '我通常11点睡觉。' },
+                { main: '我一個禮拜做三次運動。', sub: '我一周运动三次。' }
+              ]
+            },
+            {
+              cat: '餐廳點餐', desc: '餐厅点餐', sentences: [
+                { main: '唔該，可以睇下餐牌嗎？', sub: '请让我看一下菜单。' },
+                { main: '我想要杯咖啡。', sub: '我想要一杯咖啡。' },
+                { main: '呢個幾錢？', sub: '这个多少钱？' },
+                { main: '唔該，埋單。', sub: '请买单。' },
+                { main: '好好食！', sub: '很好吃！' },
+                { main: '有冇素食？', sub: '有素食吗？' }
+              ]
+            },
+            {
+              cat: '問路與交通', desc: '问路与交通', sentences: [
+                { main: '唔好意思，車站喺邊度？', sub: '打扰，车站在哪里？' },
+                { main: '點樣去機場？', sub: '怎么去机场？' },
+                { main: '喺個彎度轉左。', sub: '在拐角处左转。' },
+                { main: '行直兩個街口。', sub: '直走两个街区。' },
+                { main: '離呢度遠唔遠？', sub: '离这里远吗？' },
+                { main: '我想搭的士。', sub: '我想打出租车。' }
+              ]
+            },
+            {
+              cat: '購物', desc: '购物', sentences: [
+                { main: '呢個幾錢？', sub: '这个多少钱？' },
+                { main: '可唔可以試吓？', sub: '可以试穿吗？' },
+                { main: '有冇細碼啲嘅？', sub: '有小一号的吗？' },
+                { main: '我要呢個。', sub: '我要这个。' },
+                { main: '可唔可以碌卡？', sub: '可以刷卡吗？' },
+                { main: '有冇第二隻色？', sub: '有其他颜色吗？' }
+              ]
+            },
+            {
+              cat: '表達感受', desc: '表达感受', sentences: [
+                { main: '我今日好開心。', sub: '我今天很开心。' },
+                { main: '我有啲攰。', sub: '我有点累。' },
+                { main: '我覺得呢個諗法幾好。', sub: '我觉得这个想法不错。' },
+                { main: '真係唔好意思。', sub: '真的很抱歉。' },
+                { main: '我同意你嘅睇法。', sub: '我同意你的看法。' },
+                { main: '我唔明白。', sub: '我不明白。' }
+              ]
+            },
+            {
+              cat: '請求幫助', desc: '请求帮助', sentences: [
+                { main: '你可唔可以幫吓我？', sub: '你能帮我吗？' },
+                { main: '你可唔可以講慢啲？', sub: '你能说慢一点吗？' },
+                { main: '呢個字係咩意思？', sub: '这个词是什么意思？' },
+                { main: '呢個粵語點講？', sub: '这个粤语怎么说？' },
+                { main: '我要睇醫生。', sub: '我需要看医生。' },
+                { main: '你可唔可以喺地圖度指畀我睇？', sub: '能在地图上指给我看吗？' }
+              ]
+            }
+          ],
+          tables: [
+            {
+              name: '常用語氣助詞 Sentence-final Particles',
+              headers: ['助詞', '用途', '例句', '意思'],
+              rows: [['嘅', '的', '我嘅書', '我的书'], ['嗎', '疑问', '係唔係嗎？', '是不是？'], ['啦', '语气缓和', '走啦', '走吧'], ['㗎', '强调', '係㗎', '是的'], ['喎', '提醒/惊讶', '好靚喎', '好漂亮啊'], ['咩', '疑问/反问', '你話咩？', '你说什么？']]
+            },
+            {
+              name: '粵語 vs 普通話 對照',
+              headers: ['普通話', '粵語', '解釋'],
+              rows: [['是', '係', '判断动词'], ['不', '唔', '否定词'], ['的', '嘅', '助词'], ['在', '喺', '介词'], ['什么', '咩/乜嘢', '疑问词'], ['没有', '冇', '否定'], ['这个', '呢個', '指示代词'], ['那个', '嗰個', '指示代词'], ['给', '畀', '动词'], ['看', '睇', '动词']]
+            }
+          ]
+        },
+        ttsLang: 'zh-HK'
+      }
+    };
+
+    // ========== 6. 核心状态与配置 ==========
+    const LANG_PAIRS = { en: { from: 'en', to: 'zh-CN' }, es: { from: 'es', to: 'en' }, kr: { from: 'ko', to: 'zh-CN' }, ja: { from: 'ja', to: 'zh-CN' }, yue: { from: 'zh', to: 'zh-CN' } };
+    let currentLang = 'en', currentSection = 'sounds', searchHistory = [];
+
+    // ========== 7. 语音合成 (TTS) ==========
+    let availableVoices = [];
+    // 提前加载声音列表 (Safari/Chrome 会异步加载声音)
+    if (window.speechSynthesis) {
+      availableVoices = window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        availableVoices = window.speechSynthesis.getVoices();
+      };
+    }
+
+    function speak(text, lang) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const targetLang = lang || DATA[currentLang].ttsLang;
+
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = targetLang;
+
+      // 日语：根据文本长度动态调整语速；加句号结尾让 TTS 引擎保持完整尾音不截断
+      if (targetLang === 'ja') {
+        const isShort = text.length <= 2;
+        u.text = text + '。';
+        u.rate = isShort ? 0.55 : 0.75;
+        u.pitch = 1.05;
+      } else if (targetLang === 'zh-HK' || currentLang === 'yue') {
+        u.rate = 0.9;
+      } else {
+        u.rate = 1.0;
+      }
+
+      // 尝试匹配系统里的高质量“真人级”声音引擎 (Premium / Enhanced / Natural)
+      if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
+      if (availableVoices.length > 0) {
+        const langPrefix = targetLang.split('-')[0].toLowerCase();
+        let langVoices = availableVoices.filter(v => {
+          const vLang = v.lang.toLowerCase().replace('_', '-');
+          if (targetLang === 'zh-HK') return vLang.includes('hk');
+          return vLang.startsWith(langPrefix);
+        });
+        
+        let bestVoice = null;
+        // 为不同语言指定 Mac/iOS/Windows 上听感最好的内置声音
+        if (langPrefix === 'en') {
+          bestVoice = langVoices.find(v => /(Samantha|Alex|Daniel|Karen|Premium|Enhanced|Natural)/i.test(v.name));
+        } else if (langPrefix === 'es') {
+          bestVoice = langVoices.find(v => /(Monica|Paulina|Jorge|Premium|Enhanced|Natural)/i.test(v.name));
+        } else if (langPrefix === 'ko') {
+          bestVoice = langVoices.find(v => /(Yuna|Premium|Enhanced|Natural)/i.test(v.name));
+        } else if (langPrefix === 'ja') {
+          bestVoice = langVoices.find(v => /(Kyoko|Otoya|Premium|Enhanced|Natural)/i.test(v.name));
+        } else if (targetLang === 'zh-HK') {
+          bestVoice = langVoices.find(v => /(Sin-ji|Premium|Enhanced|Natural)/i.test(v.name));
+        }
+        
+        if (bestVoice) {
+          u.voice = bestVoice;
+        } else if (langVoices.length > 0) {
+          const premium = langVoices.find(v => /(Premium|Enhanced|Natural)/i.test(v.name));
+          u.voice = premium || langVoices[0];
+        }
+      }
+
+      window.speechSynthesis.speak(u);
+    }
+
+    // ========== 8. 渲染逻辑 (UI 渲染与更新) ==========
+    
+    // 渲染发音模块
+    function renderSounds() {
+      const d = DATA[currentLang].sounds;
+      let h = `<h2 class="section-title">${d.title}</h2><p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:24px">${d.subtitle}</p>`;
+      for (const cat of d.categories) {
+        h += `<div class="sound-category"><h3>${cat.name}</h3><div class="sound-grid">`;
+        for (const item of cat.items) {
+          const sp = (item.speak || item.text).replace(/'/g, "\\'");
+          h += `<div class="sound-block" onclick="playSound(this,'${sp}')"><span>${item.text}</span>${item.sub ? `<span class="sub">${item.sub}</span>` : ''}</div>`;
+        }
+        h += `</div></div>`;
+      }
+      document.getElementById('sec-sounds').innerHTML = h;
+    }
+    // 播放发音块的语音，并添加短暂的点击动画效果
+    function playSound(el, text) { speak(text); el.classList.add('playing'); setTimeout(() => el.classList.remove('playing'), 400) }
+
+    // VOCAB
+    // 渲染词汇模块：构建侧边栏分类导航和主内容区域的词汇卡片
+    function renderVocab() {
+      const d = DATA[currentLang].vocab;
+      let sidebar = '', content = '';
+      for (const cat of d.categories) {
+        const cnName = cat.name.includes(' ') ? cat.name.split(' ').pop() : cat.name;
+        sidebar += `<a href="#vocab-${cat.id}" data-id="vocab-${cat.id}">${cnName}</a>`;
+        content += `<div class="vocab-section" id="vocab-${cat.id}"><h3>${cat.name}</h3>`;
+        for (const sg of cat.subgroups) {
+          if (sg.label) content += `<div class="vocab-subgroup"><h4>${sg.label}</h4>`;
+          else content += `<div class="vocab-subgroup">`;
+          const isNum = cat.id === 'numbers';
+          content += `<div class="vocab-grid${isNum ? '' : ' wide'}">`;
+          for (const item of sg.items) {
+            const w = item.w.replace(/'/g, "\\'");
+            content += `<div class="vocab-card" onclick="playSound(this,'${w}')"><div class="vocab-word">${item.w}</div><div class="vocab-trans">${item.t}</div></div>`;
+          }
+          content += `</div></div>`;
+        }
+        content += `</div>`;
+      }
+      document.getElementById('sec-vocab').innerHTML =
+        `<h2 class="section-title">${d.title}</h2>
+     <div class="vocab-layout"><nav class="vocab-sidebar">${sidebar}</nav><div class="vocab-content">${content}</div></div>`;
+      document.querySelectorAll('#sec-vocab .vocab-sidebar a').forEach(a => {
+        a.addEventListener('click', e => { e.preventDefault(); const t = document.getElementById(a.dataset.id); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }) });
+      });
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            document.querySelectorAll('#sec-vocab .vocab-sidebar a').forEach(a => a.classList.remove('active'));
+            const link = document.querySelector(`#sec-vocab .vocab-sidebar a[data-id="${entry.target.id}"]`);
+            if (link) link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-100px 0px -60% 0px' });
+      document.querySelectorAll('#sec-vocab .vocab-section').forEach(s => obs.observe(s));
+      const fl = document.querySelector('#sec-vocab .vocab-sidebar a'); if (fl) fl.classList.add('active');
+    }
+
+    // GRAMMAR
+    const spkSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.08"/></svg>`;
+    // 渲染语法模块：将语法类别以表格或句子列表的形式渲染到页面上
+    function renderGrammar() {
+      const d = DATA[currentLang].grammar;
+      let sidebar = '', content = '';
+
+      for (let i = 0; i < d.sentenceGroups.length; i++) {
+        const g = d.sentenceGroups[i];
+        const catId = `grammar-cat-${i}`;
+        const shortName = g.cat.split(' ')[0];
+        sidebar += `<a href="#${catId}" data-id="${catId}">${shortName}</a>`;
+        content += `<div class="vocab-section" id="${catId}"><div class="grammar-cat-title">${g.cat}</div><div class="grammar-cat-sub">${g.desc}</div>`;
+        for (const s of g.sentences) {
+          const m = s.main.replace(/'/g, "\\'");
+          content += `<div class="sentence-row" onclick="playRowAudio(this, '${m}')"><div class="text-col"><div class="main-text">${s.main}</div><div class="sub-text">${s.sub}</div></div></div>`;
+        }
+        content += `</div>`;
+      }
+
+      if (d.tables && d.tables.length > 0) {
+        sidebar += `<a href="#grammar-tables" data-id="grammar-tables">语法表</a>`;
+        content += `<div class="vocab-section" id="grammar-tables"><div class="grammar-cat-title">系统语法表</div><div class="grammar-cat-sub">Grammar Tables</div>`;
+        for (const t of d.tables) {
+          content += `<div class="grammar-block"><h3>${t.name}</h3><div class="grammar-table-wrap"><table class="grammar-table"><thead><tr>`;
+          for (const hd of t.headers) content += `<th>${hd}</th>`;
+          content += `</tr></thead><tbody>`;
+          for (const row of t.rows) {
+            content += `<tr>`;
+            for (const cell of row) { const c = cell.replace(/'/g, "\\'"); content += `<td onclick="playCellAudio(this,'${c}')">${cell}</td>` }
+            content += `</tr>`;
+          }
+          content += `</tbody></table></div></div>`;
+        }
+        content += `</div>`;
+      }
+
+      document.getElementById('sec-grammar').innerHTML =
+        `<h2 class="section-title">${d.title}</h2>
+     <div class="vocab-layout"><nav class="vocab-sidebar">${sidebar}</nav><div class="vocab-content">${content}</div></div>`;
+
+      document.querySelectorAll('#sec-grammar .vocab-sidebar a').forEach(a => {
+        a.addEventListener('click', e => { e.preventDefault(); const t = document.getElementById(a.dataset.id); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }) });
+      });
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            document.querySelectorAll('#sec-grammar .vocab-sidebar a').forEach(a => a.classList.remove('active'));
+            const link = document.querySelector(`#sec-grammar .vocab-sidebar a[data-id="${entry.target.id}"]`);
+            if (link) link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-100px 0px -60% 0px' });
+      document.querySelectorAll('#sec-grammar .vocab-section').forEach(s => obs.observe(s));
+      const fl = document.querySelector('#sec-grammar .vocab-sidebar a'); if (fl) fl.classList.add('active');
+    }
+    // 播放表格单元格（单词级别）的音频，带有视觉反馈
+    function playCellAudio(el, text) { const c = text.split('(')[0].split('/')[0].trim(); speak(c); el.classList.add('playing-cell'); setTimeout(() => el.classList.remove('playing-cell'), 500) }
+    // 播放句子级别的音频，带有行高亮的视觉反馈
+    function playRowAudio(el, text) { speak(text); el.classList.add('playing-row'); setTimeout(() => el.classList.remove('playing-row'), 500) }
+
+    // PRACTICE
+    const practiceStates = {};
+    const practiceState = { cat: null, words: [], currentIndex: 0, totalOriginal: 0 };
+    // 获取西班牙语名词的阴阳性信息，用于在练习中提供颜色和标签提示
+    function getEsGenderInfo(catId, w) {
+      if (currentLang !== 'es') return null;
+      const nounCats = ['home', 'restaurant', 'transport', 'relations', 'hobbies', 'body', 'clothes', 'nature', 'jobs'];
+      if (!nounCats.includes(catId)) return null;
+      const m = ['fotógrafo', 'padre', 'hermano', 'amigo', 'hijo', 'esposo', 'niño', 'profesor', 'vecino', 'compañero', 'dormitorio', 'baño', 'teléfono', 'reloj', 'arroz', 'pan', 'pescado', 'huevo', 'café', 'té', 'menú', 'tenedor', 'cuchillo', 'plato', 'aeropuerto', 'hotel', 'autobús', 'taxi', 'tren', 'mapa', 'boleto', 'pasaporte', 'banco', 'hospital', 'estudiante', 'azúcar', 'libro', 'deporte', 'juego', 'arte', 'viaje', 'baile', 'piano', 'equipo', 'pasatiempo', 'plátano', 'pastel', 'pollo', 'jugo', 'sándwich', 'helado', 'ojo', 'brazo', 'pie', 'cuerpo', 'pelo', 'médico', 'dolor', 'pantalones', 'vestido', 'abrigo', 'zapato', 'sombrero', 'calcetín', 'bolso', 'cinturón', 'anillo', 'perro', 'gato', 'pájaro', 'pez', 'caballo', 'árbol', 'río', 'mar', 'cielo', 'sol', 'policía', 'trabajador', 'conductor', 'jefe', 'empleado', 'granjero', 'cocinero', 'artista', 'cantante', 'actor', 'escritor', 'gerente', 'piloto', 'ingeniero'];
+      const f = ['madre', 'hermana', 'hija', 'esposa', 'casa', 'habitación', 'cocina', 'mesa', 'silla', 'cama', 'puerta', 'ventana', 'luz', 'computadora', 'llave', 'agua', 'carne', 'fruta', 'leche', 'sal', 'cuenta', 'cuchara', 'estación', 'izquierda', 'derecha', 'calle', 'escuela', 'música', 'película', 'foto', 'canción', 'guitarra', 'pelota', 'cabeza', 'oreja', 'boca', 'nariz', 'cara', 'mano', 'pierna', 'medicina', 'ropa', 'camisa', 'camiseta', 'falda', 'chaqueta', 'gafas', 'flor', 'hierba', 'montaña', 'luna', 'estrella', 'enfermera', 'abuela', 'tía', 'sobrina', 'manzana', 'sopa', 'cerveza', 'pizza', 'música', 'película', 'programación', 'lectura', 'fotografía', 'natación', 'pintura'];
+      if (m.includes(w.toLowerCase())) return { color: '#4F8BCA', label: '阳性 (m.)' };
+      if (f.includes(w.toLowerCase())) return { color: '#D26B88', label: '阴性 (f.)' };
+      return null;
+    }
+    // 去除字符串中的音标/重音符号，用于在练习时放宽答案比对要求
+    function stripAccents(str) { return str.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    // 渲染练习模块：如果是初始状态则显示类别选择，否则渲染当前练习卡片
+    function renderPractice() {
+      const sec = document.getElementById('sec-practice');
+      if (!practiceState.cat) {
+        let h = '<h2 class="section-title">选择练习类别</h2><div class="practice-cats">';
+        for (const cat of DATA[currentLang].vocab.categories) {
+          h += `<button class="p-cat-btn" onclick="startPractice('${cat.id}')">${cat.name}</button>`;
+        }
+        h += '</div>';
+        sec.innerHTML = h;
+      } else {
+        renderPracticeCard();
+      }
+    }
+    // 根据选定的类别初始化练习数据，加载该类别下的所有单词并重置进度
+    function startPractice(catId) {
+      const cat = DATA[currentLang].vocab.categories.find(c => c.id === catId);
+      if (!cat) return;
+      practiceState.cat = catId;
+      practiceState.words = [];
+      cat.subgroups.forEach(sg => sg.items.forEach(item => {
+        practiceState.words.push({ w: item.w, t: item.t, isReview: false });
+      }));
+      // No shuffle, follow core vocab order
+      practiceState.totalOriginal = practiceState.words.length;
+      practiceState.currentIndex = 0;
+      practiceState.newWordsSeen = 0;
+      renderPracticeCard();
+    }
+    // 渲染具体的练习卡片（包括进度条、目标词汇、输入框等）
+    function renderPracticeCard() {
+      const sec = document.getElementById('sec-practice');
+      if (practiceState.currentIndex >= practiceState.words.length) {
+        sec.innerHTML = '<div class="practice-container"><h2>🎉 练习完成！</h2><button class="p-submit" style="margin-top:20px" onclick="practiceState.cat=null;renderPractice()">返回类别</button></div>';
+        return;
+      }
+      const item = practiceState.words[practiceState.currentIndex];
+
+      // Progress reflects how many words have been completed.
+      // Initially at index 0, 0 are completed.
+      const progressVal = Math.min(practiceState.currentIndex, practiceState.totalOriginal);
+      const progressPercent = Math.min(100, Math.floor((progressVal / practiceState.totalOriginal) * 100));
+
+      let genderHtml = '';
+      const g = getEsGenderInfo(practiceState.cat, item.w);
+      if (g) genderHtml = `<div class="p-gender" style="color:${g.color}">${g.label}</div>`;
+
+      sec.innerHTML = `
+    <div class="practice-container">
+      <div class="p-header">
+        <button class="p-back-btn" onclick="practiceState.cat=null;renderPractice()">← 返回类别</button>
+        <div class="p-progress">
+          <div class="p-progress-track"><div class="p-progress-fill" style="width:${progressPercent}%"></div></div>
+          <input type="range" min="0" max="${practiceState.words.length - 1}" value="${practiceState.currentIndex}" 
+                 oninput="jumpToPractice(this.value)" onchange="jumpToPractice(this.value)">
+        </div>
+        <div style="font-size:1rem;font-weight:500;min-width:60px;text-align:right;color:var(--text-secondary);">${progressVal} / ${practiceState.totalOriginal}</div>
+      </div>
+      <div class="practice-card">
+        <div class="p-target-word">${item.t}</div>
+        ${genderHtml}
+        <div class="p-hint" id="p-hint" style="transition:none">${item.isReview ? '🔄 错题复习' : ''}</div>
+        <div class="p-input-wrap">
+          <input type="text" id="p-input" class="p-input" autocomplete="off" placeholder="输入对应单词...">
+        </div>
+        <div class="p-feedback" id="p-feedback" style="transition:none"></div>
+      </div>
+      <div class="p-controls">
+        <button class="p-nav-btn" onclick="prevPractice()">上一题</button>
+        <button class="p-submit" onclick="checkPractice()">提交答案 (Enter)</button>
+        <button class="p-nav-btn" onclick="nextPractice()">下一题</button>
+      </div>
+    </div>
+  `;
+      // Add slight delay for animation
+      setTimeout(() => {
+        const f = document.querySelector('.p-progress-fill');
+        if (f) f.style.transition = 'width 0.3s ease';
+      }, 50);
+
+      document.getElementById('p-input').focus();
+      document.getElementById('p-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkPractice();
+      });
+    }
+    // 检查练习答案：比对输入与目标词汇，处理重音忽略，处理错误时插入复习队列（艾宾浩斯记忆法）
+    function checkPractice() {
+      const inputEl = document.getElementById('p-input');
+      const val = inputEl.value.trim();
+      const feedback = document.getElementById('p-feedback');
+      if (!val) {
+        feedback.textContent = '请输入内容！';
+        feedback.style.color = '#FFA500';
+        return;
+      }
+      const item = practiceState.words[practiceState.currentIndex];
+      const target = item.w.trim();
+      const normalizedInput = stripAccents(val.toLowerCase());
+      const normalizedTarget = stripAccents(target.toLowerCase());
+
+      if (val.toLowerCase() === target.toLowerCase()) {
+        feedback.textContent = '✅ 正确！';
+        feedback.style.color = '#4CAF50';
+        inputEl.style.borderColor = '#4CAF50';
+        inputEl.disabled = true;
+        speak(target);
+        setTimeout(nextPractice, 800);
+      } else if (currentLang === 'es' && normalizedInput === normalizedTarget) {
+        feedback.textContent = `⚠️ 拼写正确但缺少重音。正确答案是: ${target}`;
+        feedback.style.color = '#FFA500';
+        inputEl.style.borderColor = '#FFA500';
+        inputEl.value = target;
+        inputEl.disabled = true;
+        speak(target);
+        setTimeout(nextPractice, 1500);
+      } else {
+        feedback.textContent = `❌ 错误！正确答案是: ${target}`;
+        feedback.style.color = '#F44336';
+        inputEl.style.borderColor = '#F44336';
+        inputEl.value = target;
+        inputEl.disabled = true;
+        speak(target);
+
+        // Ebbinghaus logic: schedule to appear again
+        const scheduleReview = (offset) => {
+          let insertIndex = practiceState.currentIndex + offset;
+          if (insertIndex > practiceState.words.length) insertIndex = practiceState.words.length;
+          practiceState.words.splice(insertIndex, 0, { w: item.w, t: item.t, isReview: true });
+        };
+        scheduleReview(3);
+        scheduleReview(8);
+
+        setTimeout(nextPractice, 2000);
+      }
+    }
+    // 跳转到指定进度的练习题
+    function jumpToPractice(val) {
+      practiceState.currentIndex = parseInt(val);
+      renderPracticeCard();
+    }
+    // 切换到下一题，带滑动动画
+    function nextPractice() {
+      const card = document.querySelector('.practice-card');
+      if (card) {
+        card.classList.add('swipe-out');
+        setTimeout(() => { practiceState.currentIndex++; renderPracticeCard(); }, 250);
+      } else {
+        practiceState.currentIndex++;
+        renderPracticeCard();
+      }
+    }
+    // 切换到上一题
+    function prevPractice() {
+      if (practiceState.currentIndex > 0) {
+        practiceState.currentIndex--;
+        renderPracticeCard();
+      }
+    }
+
+    // LOOKUP
+    // 渲染查词模块：初始化输入框及搜索历史显示
+    function renderLookup() {
+      document.getElementById('lookup-input').value = '';
+      document.getElementById('lookup-result').classList.remove('show');
+      document.getElementById('lookup-loading').classList.remove('show');
+      renderHistory();
+    }
+    // 调用第三方翻译 API (MyMemory) 进行词汇查询，并处理查询结果和网络状态，同时保存搜索历史
+    async function doLookup() {
+      const input = document.getElementById('lookup-input').value.trim();
+      if (!input) return;
+      const pair = LANG_PAIRS[currentLang];
+      const loading = document.getElementById('lookup-loading');
+      const resultEl = document.getElementById('lookup-result');
+      resultEl.classList.remove('show'); loading.classList.add('show');
+      try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(input)}&langpair=${pair.from}|${pair.to}`;
+        const resp = await fetch(url); const data = await resp.json();
+        loading.classList.remove('show');
+        document.getElementById('lookup-main').textContent = input;
+        document.getElementById('lookup-sub').textContent = data.responseData?.translatedText || '(暂无翻译结果)';
+        resultEl.classList.add('show');
+      } catch (e) {
+        loading.classList.remove('show');
+        document.getElementById('lookup-main').textContent = input;
+        document.getElementById('lookup-sub').textContent = '(网络错误，请稍后重试)';
+        resultEl.classList.add('show');
+      }
+      if (!searchHistory.includes(input)) { searchHistory.unshift(input); if (searchHistory.length > 5) searchHistory.pop(); renderHistory() }
+    }
+    // 朗读当前查词模块主界面中显示的单词
+    function speakLookup() { const t = document.getElementById('lookup-main').textContent; if (t) speak(t) }
+    // 渲染查词模块的搜索历史记录，以小标签的形式显示
+    function renderHistory() {
+      const label = document.getElementById('history-label'), chips = document.getElementById('history-chips');
+      if (!searchHistory.length) { label.style.display = 'none'; chips.innerHTML = ''; return }
+      label.style.display = 'block';
+      chips.innerHTML = searchHistory.map(h => `<div class="history-chip" onclick="document.getElementById('lookup-input').value='${h.replace(/'/g, "\\'")}';doLookup()">${h}</div>`).join('');
+    }
+
+    // NAV
+    // 切换当前学习语言：保存旧语言状态，恢复新语言状态，并应用相应的 CSS 皮肤
+    function switchLang(lang) {
+      // Remember scroll position and active vocab section
+      const scrollY = window.scrollY;
+      const activeVocabLink = document.querySelector('.vocab-sidebar a.active');
+      const activeVocabId = activeVocabLink ? activeVocabLink.dataset.id : null;
+      // Save current practice state for previous lang
+      if (practiceState.cat) {
+        practiceStates[currentLang] = { cat: practiceState.cat, words: [...practiceState.words], currentIndex: practiceState.currentIndex, totalOriginal: practiceState.totalOriginal };
+      }
+      currentLang = lang; document.body.className = `lang-${lang}`;
+      // Restore or reset practice state for new lang
+      if (practiceStates[lang]) {
+        Object.assign(practiceState, practiceStates[lang]);
+      } else {
+        practiceState.cat = null; practiceState.words = []; practiceState.currentIndex = 0; practiceState.totalOriginal = 0;
+      }
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+      renderCurrentSection();
+      // Restore scroll or navigate to same vocab section
+      if (currentSection === 'vocab' && activeVocabId) {
+        const target = document.getElementById(activeVocabId);
+        if (target) { setTimeout(() => target.scrollIntoView({ behavior: 'auto', block: 'start' }), 50); return }
+      }
+      window.scrollTo(0, scrollY);
+    }
+    // 切换侧边栏/顶部导航的主题部分 (发音/词汇/语法/练习/查词)
+    function switchSection(sec) { currentSection = sec; document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.section === sec)); document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(`sec-${sec}`).classList.add('active'); renderCurrentSection() }
+    // 根据当前选定的模块调用对应的渲染函数
+    function renderCurrentSection() {
+      switch (currentSection) { case 'sounds': renderSounds(); break; case 'vocab': renderVocab(); break; case 'grammar': renderGrammar(); break; case 'practice': renderPractice(); break; case 'lookup': renderLookup(); break }
+    }
+    // ========== 9. 交互与事件绑定 ==========
+    document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => switchLang(b.dataset.lang)));
+    document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchSection(b.dataset.section)));
+    document.getElementById('lookup-input').addEventListener('keydown', e => { if (e.key === 'Enter') doLookup() });
+
+    // === LANDING PAGE LOGIC ===
+    // 从引导页进入主学习界面：执行平滑过渡动画并初始化所选语言环境
+    function enterLearning(lang) {
+      const landing = document.getElementById('landing-page');
+      const learning = document.getElementById('learning-page');
+      landing.style.transition = 'opacity .45s, transform .45s';
+      landing.style.opacity = '0';
+      landing.style.transform = 'translateY(-30px)';
+      setTimeout(() => {
+        landing.style.display = 'none';
+        currentLang = lang;
+        document.body.className = 'lang-' + lang;
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+        currentSection = 'sounds';
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.section === 'sounds'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('sec-sounds').classList.add('active');
+        renderCurrentSection();
+        learning.classList.add('active');
+        window.scrollTo(0, 0);
+      }, 450);
+    }
+    // 从主学习界面返回到引导页：执行反向过渡动画并重置环境
+    function backToLanding() {
+      const landing = document.getElementById('landing-page');
+      const learning = document.getElementById('learning-page');
+      learning.style.transition = 'opacity .4s, transform .4s';
+      learning.style.opacity = '0';
+      learning.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        learning.classList.remove('active');
+        learning.style.opacity = ''; learning.style.transform = '';
+        document.body.className = '';
+        landing.style.display = '';
+        landing.style.opacity = ''; landing.style.transform = '';
+        window.scrollTo(0, 0);
+      }, 400);
+    }
+
+    // Scroll reveal observer
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target) } });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // ===== VISUAL ENHANCEMENTS =====
+
+    // Ripple effect on clicks
+    // 给卡片或按钮等元素添加点击水波纹特效
+    function addRipple(e, el) {
+      const r = document.createElement('span');
+      r.classList.add('ripple-fx');
+      const rect = el.getBoundingClientRect();
+      const sz = Math.max(rect.width, rect.height) * 2;
+      r.style.width = r.style.height = sz + 'px';
+      r.style.left = (e.clientX - rect.left - sz / 2) + 'px';
+      r.style.top = (e.clientY - rect.top - sz / 2) + 'px';
+      el.appendChild(r);
+      setTimeout(() => r.remove(), 600);
+    }
+    document.addEventListener('click', e => {
+      const card = e.target.closest('.vocab-card,.sound-block,.lang-card,.feature-card');
+      if (card) addRipple(e, card);
+    });
+
+    // Floating particles
+    // 初始化全屏悬浮粒子动画，用于作为动态背景
+    (function initParticles() {
+      if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+      const c = document.createElement('canvas');
+      c.id = 'particles-canvas';
+      document.body.appendChild(c);
+      const ctx = c.getContext('2d');
+      let w, h, pts = [];
+      // 粒子画布窗口大小改变时的适配逻辑
+      function resize() { w = c.width = innerWidth; h = c.height = innerHeight }
+      resize(); addEventListener('resize', resize);
+      class P {
+        constructor() { this.reset() }
+        reset() { this.x = Math.random() * w; this.y = Math.random() * h; this.sz = Math.random() * 1.8 + 0.4; this.vx = (Math.random() - 0.5) * 0.25; this.vy = (Math.random() - 0.5) * 0.25; this.o = Math.random() * 0.25 + 0.08 }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset() }
+        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.sz, 0, Math.PI * 2); ctx.fillStyle = `rgba(155,145,135,${this.o})`; ctx.fill() }
+      }
+      for (let i = 0; i < 35; i++)pts.push(new P);
+      (function loop() { ctx.clearRect(0, 0, w, h); pts.forEach(p => { p.update(); p.draw() }); requestAnimationFrame(loop) })()
+    })();
+
+    // Header shadow on scroll
+    window.addEventListener('scroll', () => {
+      const hdr = document.querySelector('#learning-page header');
+      if (hdr) hdr.classList.toggle('scrolled', scrollY > 10);
+    }, { passive: true });
+
+  </script>
+
+  <!-- ===== PWA Update Banner ===== -->
+  <div id="pwa-update-banner" role="alert" aria-live="polite">
+    <span class="update-icon">✨</span>
+    <span class="update-text">LingoFlow 有新版本可用！</span>
+    <button id="pwa-reload-btn" onclick="pwaReload()">立即更新</button>
+    <button class="dismiss-btn" onclick="pwaDismiss()" title="关闭">✕</button>
+  </div>
+
+  <script>
+    // ===== PWA Service Worker 注册与更新检测 =====
+    (function registerSW() {
+      if (!('serviceWorker' in navigator)) return;
+
+      let waitingWorker = null;
+
+      function showUpdateBanner() {
+        const banner = document.getElementById('pwa-update-banner');
+        if (!banner) return;
+        banner.style.display = 'flex';
+        // 触发动画（需要一帧延迟）
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => banner.classList.add('show'));
+        });
+      }
+
+      window.pwaReload = function() {
+        if (waitingWorker) {
+          waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+          window.location.reload();
+        }
+      };
+
+      window.pwaDismiss = function() {
+        const banner = document.getElementById('pwa-update-banner');
+        banner.classList.remove('show');
+        setTimeout(() => { banner.style.display = 'none'; }, 400);
+      };
+
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        console.log('[PWA] Service Worker registered. Scope:', reg.scope);
+
+        // 检测已有等待中的新版本
+        if (reg.waiting) {
+          waitingWorker = reg.waiting;
+          showUpdateBanner();
+        }
+
+        // 监听新版本安装完毕进入等待状态
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // 新版本已就绪，提示用户
+              waitingWorker = newWorker;
+              showUpdateBanner();
+            }
+          });
+        });
+
+        // 新 SW 激活后自动刷新页面
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+
+        // 每 60 秒静默检查一次更新
+        setInterval(() => reg.update(), 60 * 1000);
+      }).catch((err) => {
+        console.warn('[PWA] Service Worker registration failed:', err);
+      });
+
+      // 处理 URL 参数快捷启动（manifest shortcuts）
+      const params = new URLSearchParams(window.location.search);
+      const startLang = params.get('lang');
+      if (startLang && ['en', 'es', 'kr', 'ja', 'yue'].includes(startLang)) {
+        // 等待 DOM 就绪后直接进入对应语言
+        document.addEventListener('DOMContentLoaded', () => {
+          if (typeof enterLearning === 'function') {
+            enterLearning(startLang);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+
+</html>

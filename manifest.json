@@ -1,0 +1,54 @@
+{
+  "name": "LingoFlow 语流",
+  "short_name": "LingoFlow",
+  "description": "多语言学习应用 — 英语、西班牙语、韩语、日语、粤语",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F8F5F1",
+  "theme_color": "#8FB5A1",
+  "lang": "zh-CN",
+  "categories": ["education", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "英语学习",
+      "short_name": "English",
+      "description": "进入英语学习模块",
+      "url": "/?lang=en",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "日语学习",
+      "short_name": "Japanese",
+      "description": "进入日语学习模块",
+      "url": "/?lang=ja",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
+}
